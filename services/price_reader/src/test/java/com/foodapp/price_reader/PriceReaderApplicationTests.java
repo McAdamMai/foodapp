@@ -1,10 +1,10 @@
-package com.foodapp.pricing;
+package com.foodapp.price_reader;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PricingApplicationTests {
+class PriceReaderApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,24 +1,26 @@
 syntax = "proto3";
 
-package com.foodapp.contracts.pricing;
+package com.foodapp.contracts.price_reader;
 option java_multiple_files = true;
-option java_package = "com.foodapp.contracts.pricing";
-option java_outer_classname = "PricingProto";
+option java_package = "com.foodapp.contracts.price_reader";
+option java_outer_classname = "PriceReaderProto";
 
 import "google/protobuf/timestamp.proto";
 
 message MerchandisePriceRequest {
   string merchandise_uuid = 1;
+  string currency = 2;
+  google.protobuf.Timestamp at = 3; // optional: time at which to get the price
 }
 
 message MerchandisePriceResponse {
   string merchandise_uuid = 1;
   string currency = 2;
-  double amount = 3;
-  double discount = 4; //0 if none
+  double grossPrice = 3;
+  double netPrice = 4; //-1 if none
   google.protobuf.Timestamp last_update = 5; // when the price was last updated
 }
 
-service PricingService {
+service PriceReaderService {
   rpc getPrice (MerchandisePriceRequest) returns (MerchandisePriceResponse);
 }

@@ -1,21 +1,21 @@
-package com.foodapp.pricing.adapters.rest.controller;
+package com.foodapp.price_reader.adapters.rest.controller;
 
-import com.foodapp.pricing.application.service.PricingApplicationService;
-import com.foodapp.pricing.domain.models.MerchandisePrice;
-import io.micrometer.core.instrument.config.validate.Validated;
+import com.foodapp.price_reader.application.service.PriceReaderApplicationService;
+import com.foodapp.price_reader.domain.common.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/prices")
 @RequiredArgsConstructor
-public class PricingRestController {
+public class PriceReaderRestController {
 
-    private final PricingApplicationService appService;
+    private final PriceReaderApplicationService appService;
 
     @PostMapping //a shortcut annotation for @RequestMapping(method = Request.POST)
     @ResponseStatus(HttpStatus.CREATED) // create an HTTP status code 201 when the method successfully completes.
@@ -27,8 +27,9 @@ public class PricingRestController {
         MerchandisePrice mp = MerchandisePrice.builder()
                 .merchandiseUuid(body.merchandiseUuid())
                 .currency(body.currency())
-                .amount(body.amount())
-                .discount(body.discount())
+                .grossPrice(body.grossPrice())
+                .netPrice(body.netPrice())
+                .discountStack(Collections.emptyList())
                 .lastUpdate(Instant.now())
                 .build();
 
@@ -39,8 +40,8 @@ public class PricingRestController {
     record PriceUpsertRequest(
             String merchandiseUuid,
             String currency,
-            double amount,
-            double discount
+            double grossPrice,
+            double netPrice
     ) {}
 
 }

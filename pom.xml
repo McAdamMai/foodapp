@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>services/catalog_service</module>
-		<module>services/pricing_service</module>
+		<module>services/price_reader</module>
 		<module>services/tag_service</module>
 		<module>services/home_bff_service</module>
 		<module>services/foodapp_contracts</module>

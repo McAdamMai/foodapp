@@ -1,10 +1,12 @@
-package com.foodapp.pricing.application.mapper;
+package com.foodapp.price_reader.application.mapper;
 
-import com.foodapp.contracts.pricing.MerchandisePriceResponse;
-import com.foodapp.pricing.domain.models.MerchandisePrice;
+import com.foodapp.contracts.price_reader.MerchandisePriceResponse;
+import com.foodapp.price_reader.domain.common.MerchandisePrice;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import org.springframework.stereotype.Component;
+
+import java.util.Collections;
 
 @Component
 public class PriceMapper {
@@ -16,8 +18,8 @@ public class PriceMapper {
         return MerchandisePriceResponse.newBuilder() // newBuilder for proto
                 .setMerchandiseUuid(mp.getMerchandiseUuid())
                 .setCurrency(mp.getCurrency())
-                .setAmount(mp.getAmount())
-                .setDiscount(mp.getDiscount())
+                .setGrossPrice(mp.getGrossPrice())
+                .setNetPrice(mp.getNetPrice())
                 .setLastUpdate(ts)
                 .build();
     }
@@ -27,8 +29,9 @@ public class PriceMapper {
         return MerchandisePrice.builder()
                 .merchandiseUuid(proto.getMerchandiseUuid())
                 .currency(proto.getCurrency())
-                .amount(proto.getAmount())
-                .discount(proto.getDiscount())
+                .grossPrice(proto.getGrossPrice())
+                .netPrice(proto.getNetPrice())
+                .discountStack(Collections.emptyList())
                 // change the rpc proto to a timestamp in mills
                 .lastUpdate(java.time.Instant.ofEpochMilli(
                         proto.getLastUpdate().getSeconds()*1000 +

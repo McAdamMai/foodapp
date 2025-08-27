@@ -1,13 +1,13 @@
-package com.foodapp.pricing;
+package com.foodapp.price_reader;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PricingApplication {
+public class PriceReaderApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PricingApplication.class, args);
+		SpringApplication.run(PriceReaderApplication.class, args);
 	}
 
 }

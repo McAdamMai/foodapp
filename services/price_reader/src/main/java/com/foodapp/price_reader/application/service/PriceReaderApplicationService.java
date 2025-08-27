@@ -1,10 +1,9 @@
-package com.foodapp.pricing.application.service;
+package com.foodapp.price_reader.application.service;
 
-import com.foodapp.contracts.pricing.MerchandisePriceRequest;
-import com.foodapp.contracts.pricing.MerchandisePriceResponse;
-import com.foodapp.pricing.adapters.persistence.repository.MerchandisePriceRepository;
-import com.foodapp.pricing.application.mapper.PriceMapper;
-import com.foodapp.pricing.domain.models.MerchandisePrice;
+import com.foodapp.contracts.price_reader.MerchandisePriceResponse;
+import com.foodapp.price_reader.adapters.persistence.repository.MerchandisePriceRepository;
+import com.foodapp.price_reader.application.mapper.PriceMapper;
+import com.foodapp.price_reader.domain.common.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,15 +11,13 @@ import com.google.protobuf.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
 
-import javax.swing.text.html.Option;
-
 @Service
 @RequiredArgsConstructor
-public class PricingApplicationService {
+public class PriceReaderApplicationService {
 
     private final MerchandisePriceRepository repo;
     private final PriceMapper mapper;
-
+    //https://poe.com/s/dKxtsOkluHPXl6jONJI7 following this to implement lookup
     public Optional<MerchandisePriceResponse> findPrice(String merchandiseUuId) {
         // create dummy response
         // newBuilder is for grpc
@@ -28,8 +25,8 @@ public class PricingApplicationService {
         MerchandisePriceResponse response = MerchandisePriceResponse.newBuilder()
                 .setMerchandiseUuid(merchandiseUuId)
                 .setCurrency("CAD")
-                .setAmount(19.99)
-                .setDiscount(0.0)
+                .setGrossPrice(19.99)
+                .setNetPrice(-1.0)
                 .setLastUpdate(currentTimestamp())
                 .build();
         return Optional.of(response);
