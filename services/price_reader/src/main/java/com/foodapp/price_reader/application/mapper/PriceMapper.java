@@ -25,7 +25,6 @@ public class PriceMapper {
     }
 
     public MerchandisePrice toDomain(MerchandisePriceResponse proto) {
-
         return MerchandisePrice.builder()
                 .merchandiseUuid(proto.getMerchandiseUuid())
                 .currency(proto.getCurrency())

@@ -18,7 +18,9 @@ public class PriceReaderApplicationService {
     private final MerchandisePriceRepository repo;
     private final PriceMapper mapper;
     //https://poe.com/s/dKxtsOkluHPXl6jONJI7 following this to implement lookup
-    public Optional<MerchandisePriceResponse> findPrice(String merchandiseUuId) {
+
+    //method for GRPC
+    public Optional<MerchandisePriceResponse> findPrice(String merchandiseUuId, String currency, Timestamp at) {
         // create dummy response
         // newBuilder is for grpc
         // from domain to grpc response
@@ -26,7 +28,7 @@ public class PriceReaderApplicationService {
                 .setMerchandiseUuid(merchandiseUuId)
                 .setCurrency("CAD")
                 .setGrossPrice(19.99)
-                .setNetPrice(-1.0)
+                .setNetPrice(16.99)
                 .setLastUpdate(currentTimestamp())
                 .build();
         return Optional.of(response);
@@ -40,11 +42,14 @@ public class PriceReaderApplicationService {
                 .build();
     }
 
-    public Optional<MerchandisePriceResponse> findPriceDebug(String merchUuId) {
-        return repo.findById(merchUuId).map(mapper::toProto); // is for map() func
+    public Optional<MerchandisePriceResponse> findPriceDebug(String merchandiseUuId, String currency, Timestamp at) {
+        Instant atInstant = Instant.ofEpochSecond(at.getSeconds(), at.getNanos());
+        return repo.findByValidPriceForInstant(merchandiseUuId, atInstant).map(mapper::toProto); // is for map() func
     }
 
+    // Method for restful
     public void savePrice(MerchandisePrice mp) {
         repo.save(mp);
     }
+
 }

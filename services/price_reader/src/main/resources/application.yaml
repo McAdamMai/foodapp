@@ -4,8 +4,15 @@ spring:
       host: localhost
       port: 27017
       username: admin
-      password: admin
+      password: Admin123!
       database: priceSnapshot
       authentication-database: admin
+
+server:
+  port: 8900  # RESTful HTTP port (Tomcat)
+
+grpc:
+  server:
+    port: 9090  # gRPC server port
 
 debug: true

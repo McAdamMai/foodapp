@@ -13,7 +13,9 @@ import java.util.List;
 @Builder
 public class MerchandisePrice {
     @Id
-    private String merchandiseUuid;
+    private String id; // this is now a unique, auto-generated ID for this snapshot
+
+    private String merchandiseUuid; // this is an ID for merchandise, but not unique
     private double grossPrice;
     private double netPrice;
     private String currency;
