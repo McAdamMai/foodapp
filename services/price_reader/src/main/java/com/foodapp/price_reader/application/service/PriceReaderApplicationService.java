@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.protobuf.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -48,8 +49,16 @@ public class PriceReaderApplicationService {
     }
 
     // Method for restful
-    public void savePrice(MerchandisePrice mp) {
-        repo.save(mp);
+    public MerchandisePrice savePrice(MerchandisePrice mp) {
+        return repo.save(mp);
     }
+    public Optional<MerchandisePrice> findById(String merchandiseUuid) {
+        return repo.findById(merchandiseUuid);
+    }
+    public List<MerchandisePrice> findAll() {
+        return repo.findAll();
+    }
+
+
 
 }
