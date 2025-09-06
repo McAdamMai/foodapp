@@ -30,7 +30,7 @@ public class PriceMapper {
                 .currency(proto.getCurrency())
                 .grossPrice(proto.getGrossPrice())
                 .netPrice(proto.getNetPrice())
-                .discountStack(Collections.emptyList())
+                .discountStackJson("[]")
                 // change the rpc proto to a timestamp in mills
                 .lastUpdate(java.time.Instant.ofEpochMilli(
                         proto.getLastUpdate().getSeconds()*1000 +

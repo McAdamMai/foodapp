@@ -6,8 +6,8 @@ import com.foodapp.price_reader.application.mapper.PriceMapper;
 import com.foodapp.price_reader.domain.common.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import com.google.protobuf.Timestamp;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -18,13 +18,9 @@ public class PriceReaderApplicationService {
 
     private final MerchandisePriceRepository repo;
     private final PriceMapper mapper;
-    //https://poe.com/s/dKxtsOkluHPXl6jONJI7 following this to implement lookup
 
-    //method for GRPC
+    // === gRPC 方法（暂时还是 dummy 响应） ===
     public Optional<MerchandisePriceResponse> findPrice(String merchandiseUuId, String currency, Timestamp at) {
-        // create dummy response
-        // newBuilder is for grpc
-        // from domain to grpc response
         MerchandisePriceResponse response = MerchandisePriceResponse.newBuilder()
                 .setMerchandiseUuid(merchandiseUuId)
                 .setCurrency("CAD")
@@ -36,29 +32,32 @@ public class PriceReaderApplicationService {
     }
 
     private Timestamp currentTimestamp() {
-        Instant now = Instant.now(); // Get current time in UTC
-        return  Timestamp.newBuilder()
-                .setSeconds(now.getEpochSecond()) // Set seconds since Jan 1, 1970
-                .setNanos(now.getNano()) // Set nanoseconds, more precise time to nanosecond(10^-9)
+        Instant now = Instant.now();
+        return Timestamp.newBuilder()
+                .setSeconds(now.getEpochSecond())
+                .setNanos(now.getNano())
                 .build();
     }
 
+    // === gRPC Debug 方法，调用 JPA 查询 ===
     public Optional<MerchandisePriceResponse> findPriceDebug(String merchandiseUuId, String currency, Timestamp at) {
         Instant atInstant = Instant.ofEpochSecond(at.getSeconds(), at.getNanos());
-        return repo.findByValidPriceForInstant(merchandiseUuId, atInstant).map(mapper::toProto); // is for map() func
+        return repo.findByMerchandiseUuidAndValidFromLessThanEqualAndValidToGreaterThanEqual(
+                merchandiseUuId, atInstant, atInstant
+        ).map(mapper::toProto);
     }
 
-    // Method for restful
+    // === RESTful 方法 ===
     public MerchandisePrice savePrice(MerchandisePrice mp) {
         return repo.save(mp);
     }
-    public Optional<MerchandisePrice> findById(String merchandiseUuid) {
-        return repo.findById(merchandiseUuid);
+
+    public Optional<MerchandisePrice> findById(Long id) {
+        return repo.findById(id);
     }
+
     public List<MerchandisePrice> findAll() {
         return repo.findAll();
     }
-
-
-
 }
+

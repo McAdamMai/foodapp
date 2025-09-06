@@ -36,7 +36,7 @@ import java.util.Objects;
 @Builder
 public class PriceSnapshotIntervalEntity {
     @Id
-    @Column(name = "interbal_id", nullable = false, updatable = false, length = 36)
+    @Column(name = "interval_id", nullable = false, updatable = false, length = 36)
     private String intervalId; // UUID stored as VARCHAR(36)
 
     @Column(name = "tenant_id", nullable = false, updatable = false, length = 64)
@@ -57,7 +57,7 @@ public class PriceSnapshotIntervalEntity {
     @Column(name = "start_at_utc", nullable = false, updatable = false)
     private Instant startAtUtc;
 
-    @Column(name = "start_at_utc")
+    @Column(name = "end_at_utc")
     private Instant endAtUtc;
 
     // Store cents as INT

@@ -28,7 +28,7 @@ public class PriceReaderRestController {
                 .currency(body.currency())
                 .grossPrice(body.grossPrice())
                 .netPrice(body.netPrice())
-                .discountStack(Collections.emptyList())
+                .discountStackJson("[]")
                 .lastUpdate(Instant.now())
                 .validFrom(Instant.now())
                 .validTo(null)
@@ -53,8 +53,8 @@ public class PriceReaderRestController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<MerchandisePrice> getById(@PathVariable("id") String merchandiseUuid) {
-        return appService.findById(merchandiseUuid)
+    public ResponseEntity<MerchandisePrice> getById(@PathVariable("id") Long id) {
+        return appService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
