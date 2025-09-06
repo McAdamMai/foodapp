@@ -3,7 +3,7 @@ package com.foodapp.price_reader.application.service;
 import com.foodapp.contracts.price_reader.MerchandisePriceResponse;
 import com.foodapp.price_reader.adapters.persistence.repository.MerchandisePriceRepository;
 import com.foodapp.price_reader.application.mapper.PriceMapper;
-import com.foodapp.price_reader.domain.common.MerchandisePrice;
+import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

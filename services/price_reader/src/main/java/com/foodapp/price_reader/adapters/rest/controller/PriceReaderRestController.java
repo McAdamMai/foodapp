@@ -1,7 +1,7 @@
 package com.foodapp.price_reader.adapters.rest.controller;
 
 import com.foodapp.price_reader.application.service.PriceReaderApplicationService;
-import com.foodapp.price_reader.domain.common.MerchandisePrice;
+import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

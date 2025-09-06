@@ -1,4 +1,4 @@
-package com.foodapp.price_reader.domain.common;
+package com.foodapp.price_reader.persistence.entity;
 
 import com.foodapp.price_reader.domain.models.DiscountStack;
 import org.springframework.data.annotation.Id;

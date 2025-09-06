@@ -1,7 +1,7 @@
 package com.foodapp.price_reader.application.mapper;
 
 import com.foodapp.contracts.price_reader.MerchandisePriceResponse;
-import com.foodapp.price_reader.domain.common.MerchandisePrice;
+import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import org.springframework.stereotype.Component;

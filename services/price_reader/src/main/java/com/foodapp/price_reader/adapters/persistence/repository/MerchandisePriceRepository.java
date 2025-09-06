@@ -1,7 +1,7 @@
 package com.foodapp.price_reader.adapters.persistence.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import com.foodapp.price_reader.domain.common.MerchandisePrice;
+import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
