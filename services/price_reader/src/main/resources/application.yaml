@@ -47,10 +47,3 @@ management:
     metrics:
       export:
         enabled: true
-logging:
-  level:
-    org:
-      hibernate: debug
-      springframework:
-        jdbc: debug
-        transaction: debug

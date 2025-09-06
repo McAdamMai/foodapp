@@ -1,6 +1,9 @@
 package com.foodapp.price_reader.persistence.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.hibernate.annotations.Immutable;
@@ -37,6 +40,7 @@ import java.util.Objects;
 public class PriceSnapshotIntervalEntity {
     @Id
     @Column(name = "interval_id", nullable = false, updatable = false, length = 36)
+    @NotBlank(message = "Interval ID cannot be blank")
     private String intervalId; // UUID stored as VARCHAR(36)
 
     @Column(name = "tenant_id", nullable = false, updatable = false, length = 64)
@@ -62,12 +66,15 @@ public class PriceSnapshotIntervalEntity {
 
     // Store cents as INT
     @Column(name = "effective_price_cents", nullable = false)
+    @NotNull(message = "Effective price cannot be null")
+    @Min(value = 0, message = "Effective price cannot be negative")
     private int effectivePriceCents;
 
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
-    @Column(name = "price_components", columnDefinition = "JSON")
+    @NotNull(message =  "Price components cannot be null")
+    @Column(name = "price_components", nullable = false, columnDefinition = "JSON")
     private String priceComponentJson;
 
     @Column(name = "provenance", columnDefinition = "JSON")

@@ -1,0 +1,11 @@
+version: v1
+plugins:
+  - name: java
+    out: gen/java
+    opt: optional
+  - name: go
+    out: gen/go
+    opt: paths=source_relative
+  - name: grpc-gateway
+    out: gen/go
+    opt: paths=source_relative,generate_unbound_methods=true

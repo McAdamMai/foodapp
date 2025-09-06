@@ -1,15 +1,18 @@
 package com.foodapp.price_reader.adapters.grpc;
 
-import com.foodapp.contracts.price_reader.MerchandisePriceRequest;
-import com.foodapp.contracts.price_reader.MerchandisePriceResponse;
+import com.foodapp.contracts.price_reader.v1.MerchandisePriceRequest;
+import com.foodapp.contracts.price_reader.v1.MerchandisePriceResponse;
 
-import com.foodapp.contracts.price_reader.PriceReaderServiceGrpc;
-import com.foodapp.price_reader.application.service.PriceReaderApplicationService;
+import com.foodapp.contracts.price_reader.v1.PriceReaderServiceGrpc;
+import com.foodapp.price_reader.domain.service.PriceReaderApplicationService;
 import com.google.protobuf.Timestamp;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
+
+import java.util.Optional;
 
 @GrpcService
 @RequiredArgsConstructor
@@ -18,26 +21,27 @@ public class PriceReaderGrpcService extends PriceReaderServiceGrpc.PriceReaderSe
     private final PriceReaderApplicationService appService;
 
     @Override
-    public  void getPrice(MerchandisePriceRequest request, StreamObserver<MerchandisePriceResponse> responseObserver){
-        // Extract all necessary fields from request
-        String merchandiseUuid = request.getMerchandiseUuid();
-        String currency = request.getCurrency().isEmpty()? "CAD" : request.getCurrency();
-
+    public void findPrice(MerchandisePriceRequest request, StreamObserver<MerchandisePriceResponse> responseObserver){
         if(!request.hasAt()) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("a timestamp is required").asException());
         } // time is essential
-        Timestamp at = request.getAt();
-        // provide fallback and default value for optional parameters
-        appService
-                .findPrice(merchandiseUuid, currency, at)
-                .ifPresentOrElse(
-                        price -> { //price is returned from findPrice, type:MerchandisePriceResponse(
-                            responseObserver.onNext(price);
-                            responseObserver.onCompleted();
-                        },
-                        () -> responseObserver.onError(Status.NOT_FOUND.asException()) // return exception if empty price
+        try{
+            Optional<MerchandisePriceResponse> response = appService.findPriceDebug(
+                    request.getMerchandiseUuid(),
+                    request.getCurrency(),
+                    request.getAt()
+            );
 
-                );
+            if(response.isPresent()){
+                responseObserver.onNext(response.get());
+            }else {
+                responseObserver.onError(Status.NOT_FOUND.asException());
+            }
+
+            responseObserver.onCompleted();
+        }catch (Exception e){
+            responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
+        }
     }
 }
 // PriceReaderGrpcService class is annotated with @GrpcService,

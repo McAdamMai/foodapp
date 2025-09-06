@@ -1,14 +1,15 @@
-package com.foodapp.price_reader.adapters.rest.controller;
+package com.foodapp.price_reader.adapters.api.controller;
 
-import com.foodapp.price_reader.application.service.PriceReaderApplicationService;
+import com.foodapp.price_reader.domain.service.PriceReaderApplicationService;
 import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/prices")
@@ -17,26 +18,25 @@ public class PriceReaderRestController {
 
     private final PriceReaderApplicationService appService;
 
-    @PostMapping //a shortcut annotation for @RequestMapping(method = Request.POST)
-    @ResponseStatus(HttpStatus.CREATED) // create an HTTP status code 201 when the method successfully completes.
-    // trigger a validation on the request body based on annotations in PriceUpsertRequest
-    // return a 400 bad request if validation fails
-    public void createOrUpdate(@RequestBody @Valid PriceUpsertRequest body){
-        // builder is for dto or model, get elements from request
-        // converting request body to repo model dto
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public MerchandisePrice createOrUpdate(@RequestBody @Valid PriceUpsertRequest body) {
         MerchandisePrice mp = MerchandisePrice.builder()
                 .merchandiseUuid(body.merchandiseUuid())
                 .currency(body.currency())
                 .grossPrice(body.grossPrice())
                 .netPrice(body.netPrice())
-                .discountStack(Collections.emptyList())
+                .discountStackJson("[]")
                 .lastUpdate(Instant.now())
+                .validFrom(Instant.now())
+                .validTo(null)
                 .build();
 
-        appService.savePrice(mp);
+        return appService.savePrice(mp);
     }
 
-    // Validation target and DTO, used with @Valid for automatic input validation
+
     record PriceUpsertRequest(
             String merchandiseUuid,
             String currency,
@@ -44,4 +44,17 @@ public class PriceReaderRestController {
             double netPrice
     ) {}
 
+
+    @GetMapping
+    public List<MerchandisePrice> all() {
+        return appService.findAll();
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MerchandisePrice> getById(@PathVariable("id") Long id) {
+        return appService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
