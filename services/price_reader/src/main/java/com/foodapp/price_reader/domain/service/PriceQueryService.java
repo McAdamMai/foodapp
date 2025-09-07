@@ -18,7 +18,7 @@ import java.util.Optional;
 public class PriceQueryService {
 
     private final PriceSnapshotIntervalRepository repo;
-    private final MerchandisePriceRepository merchandiseRepo;
+
     private final PriceIntervalMapper domainMapper;
     //https://poe.com/s/dKxtsOkluHPXl6jONJI7 following this to implement lookup
 
@@ -29,17 +29,7 @@ public class PriceQueryService {
     }
 
     // Method for restful
-    public MerchandisePrice savePrice(MerchandisePrice mp) {
-        return merchandiseRepo.save(mp);
-    }
 
-    public Optional<MerchandisePrice> findById(Long id) {
-        return merchandiseRepo.findById(id);
-    }
-
-    public List<MerchandisePrice> findAll() {
-        return merchandiseRepo.findAll();
-    }
 
 
 }

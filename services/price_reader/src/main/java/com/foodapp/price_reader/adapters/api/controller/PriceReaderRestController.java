@@ -1,6 +1,8 @@
 package com.foodapp.price_reader.adapters.api.controller;
 
-import com.foodapp.price_reader.domain.service.PriceQueryService;
+
+import com.foodapp.price_reader.domain.service.AdminRestfulService;
+
 import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
@@ -16,7 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PriceReaderRestController {
 
-    private final PriceQueryService appService;
+
+    private final AdminRestfulService restService;
+
+
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -32,7 +37,7 @@ public class PriceReaderRestController {
                 .validTo(null)
                 .build();
 
-        return appService.savePrice(mp);
+        return restService.savePrice(mp);
     }
 
 
@@ -46,13 +51,13 @@ public class PriceReaderRestController {
 
     @GetMapping
     public List<MerchandisePrice> all() {
-        return appService.findAll();
+        return restService.findAll();
     }
 
 
     @GetMapping("/{id}")
     public ResponseEntity<MerchandisePrice> getById(@PathVariable("id") Long id) {
-        return appService.findById(id)
+        return restService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
