@@ -15,7 +15,7 @@ public interface MerchandisePriceRepository extends JpaRepository <MerchandisePr
     @Query("SELECT mp FROM MerchandisePrice mp " +
             "WHERE mp.merchandiseUuid = :merchandiseUuid " +
             "AND mp.validFrom <= :atInstant " +
-            "AND (mp.validTo >= :atInstant OR mp.validTo IS NULL)")
+            "AND (mp.validTo > :atInstant OR mp.validTo IS NULL)")
     Optional<MerchandisePrice> findByValidPriceForInstant(
             @Param("merchandiseUuid") String merchandiseUuid,
             @Param("atInstant") Instant atInstant

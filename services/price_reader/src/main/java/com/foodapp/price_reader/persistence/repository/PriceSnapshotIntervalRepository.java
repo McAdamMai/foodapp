@@ -16,7 +16,7 @@ public interface PriceSnapshotIntervalRepository extends JpaRepository<PriceSnap
     @Query("SELECT ps FROM PriceSnapshotIntervalEntity ps " +
             "WHERE ps.skuId = :skuId " +
             "AND ps.startAtUtc <= :atInstant " +
-            "AND (ps.endAtUtc >= :atInstant OR ps.endAtUtc IS NULL)")
+            "AND (ps.endAtUtc > :atInstant OR ps.endAtUtc IS NULL)")
     Optional<PriceSnapshotIntervalEntity> findByValidPriceForInstant(
             @Param("skuId") String skuId,
             @Param("atInstant") Instant atInstant

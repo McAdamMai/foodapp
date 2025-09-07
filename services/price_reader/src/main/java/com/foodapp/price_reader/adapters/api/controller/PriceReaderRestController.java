@@ -1,6 +1,6 @@
 package com.foodapp.price_reader.adapters.api.controller;
 
-import com.foodapp.price_reader.domain.service.PriceReaderApplicationService;
+import com.foodapp.price_reader.domain.service.PriceQueryService;
 import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
@@ -16,8 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PriceReaderRestController {
 
-    private final PriceReaderApplicationService appService;
-
+    private final PriceQueryService appService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -57,4 +56,5 @@ public class PriceReaderRestController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
 }

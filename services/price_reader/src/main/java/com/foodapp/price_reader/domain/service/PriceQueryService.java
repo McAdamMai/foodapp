@@ -1,8 +1,7 @@
 package com.foodapp.price_reader.domain.service;
 
-import com.foodapp.contracts.price_reader.v1.MerchandisePriceResponse;
+import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.foodapp.price_reader.mapper.PriceIntervalMapper;
-import com.foodapp.price_reader.mapper.PriceGrpcMapper;
 import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
 import com.foodapp.price_reader.persistence.repository.MerchandisePriceRepository;
 import com.foodapp.price_reader.persistence.repository.PriceSnapshotIntervalRepository;
@@ -16,33 +15,17 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class PriceReaderApplicationService {
+public class PriceQueryService {
 
     private final PriceSnapshotIntervalRepository repo;
     private final MerchandisePriceRepository merchandiseRepo;
     private final PriceIntervalMapper domainMapper;
-    private final PriceGrpcMapper grpcMapper;
     //https://poe.com/s/dKxtsOkluHPXl6jONJI7 following this to implement lookup
 
-    //dummy response method for gRPC
-    public Optional<MerchandisePriceResponse> findPriceDebug(String merchandiseUuId, String currency, Timestamp at) {
-        // create dummy response
-        // newBuilder is for grpc
-        // from domain to grpc response
-        MerchandisePriceResponse response = MerchandisePriceResponse.newBuilder()
-                .setMerchandiseUuid(merchandiseUuId)
-                .setCurrency("CAD")
-                .setGrossPrice(19.99)
-                .setNetPrice(16.99)
-                .build();
-        return Optional.of(response);
-    }
-
-    public Optional<MerchandisePriceResponse> findPrice(String merchandiseUuId, String currency, Timestamp at) {
-        Instant atInstant = Instant.ofEpochSecond(at.getSeconds(), at.getNanos());
-        return repo.findByValidPriceForInstant(merchandiseUuId, atInstant)
-                .map(domainMapper::toDomain)
-                .map(grpcMapper::toProto);// is for map() func
+    //Avoid transport types (gRPC Timestamp) in the domain/service layer.
+    public Optional<PriceInterval> findPrice(String skuID, String currency, Instant at) {
+        return repo.findByValidPriceForInstant(skuID, at)
+                .map(domainMapper::toDomain);
     }
 
     // Method for restful
@@ -57,5 +40,6 @@ public class PriceReaderApplicationService {
     public List<MerchandisePrice> findAll() {
         return merchandiseRepo.findAll();
     }
+
 
 }

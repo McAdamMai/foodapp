@@ -4,7 +4,8 @@ import com.foodapp.contracts.price_reader.v1.MerchandisePriceRequest;
 import com.foodapp.contracts.price_reader.v1.MerchandisePriceResponse;
 
 import com.foodapp.contracts.price_reader.v1.PriceReaderServiceGrpc;
-import com.foodapp.price_reader.domain.service.PriceReaderApplicationService;
+import com.foodapp.price_reader.domain.service.PriceQueryService;
+import com.foodapp.price_reader.mapper.PriceGrpcMapper;
 import com.google.protobuf.Timestamp;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -12,13 +13,15 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @GrpcService
 @RequiredArgsConstructor
 public class PriceReaderGrpcService extends PriceReaderServiceGrpc.PriceReaderServiceImplBase {
 
-    private final PriceReaderApplicationService appService;
+    private final PriceQueryService priceQueryService;
+    private final PriceGrpcMapper grpcMapper;
 
     @Override
     public void findPrice(MerchandisePriceRequest request, StreamObserver<MerchandisePriceResponse> responseObserver){
@@ -26,11 +29,11 @@ public class PriceReaderGrpcService extends PriceReaderServiceGrpc.PriceReaderSe
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("a timestamp is required").asException());
         } // time is essential
         try{
-            Optional<MerchandisePriceResponse> response = appService.findPriceDebug(
+            Optional<MerchandisePriceResponse> response = priceQueryService.findPrice(
                     request.getMerchandiseUuid(),
                     request.getCurrency(),
-                    request.getAt()
-            );
+                    timeStampTranslator(request.getAt()))
+                    .map(grpcMapper::toProto);
 
             if(response.isPresent()){
                 responseObserver.onNext(response.get());
@@ -42,6 +45,10 @@ public class PriceReaderGrpcService extends PriceReaderServiceGrpc.PriceReaderSe
         }catch (Exception e){
             responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
         }
+    }
+
+    private Instant timeStampTranslator(Timestamp at){
+        return Instant.ofEpochSecond(at.getSeconds(), at.getNanos());
     }
 }
 // PriceReaderGrpcService class is annotated with @GrpcService,
