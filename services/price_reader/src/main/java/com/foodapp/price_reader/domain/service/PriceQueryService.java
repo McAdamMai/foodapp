@@ -7,7 +7,6 @@ import com.foodapp.price_reader.persistence.repository.MerchandisePriceRepositor
 import com.foodapp.price_reader.persistence.repository.PriceSnapshotIntervalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.google.protobuf.Timestamp;
 
 import java.time.Instant;
 import java.util.List;
