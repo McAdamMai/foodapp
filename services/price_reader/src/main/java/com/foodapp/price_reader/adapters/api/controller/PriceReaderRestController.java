@@ -1,9 +1,10 @@
 package com.foodapp.price_reader.adapters.api.controller;
 
 
+import com.foodapp.price_reader.adapters.api.dto.PriceIntervalDto;
+import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.foodapp.price_reader.domain.service.AdminRestfulService;
-
-import com.foodapp.price_reader.persistence.entity.MerchandisePrice;
+import com.foodapp.price_reader.mapper.PriceIntervalDtoMapper;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,48 +19,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PriceReaderRestController {
 
-
     private final AdminRestfulService restService;
-
-
-
+    private final PriceIntervalDtoMapper dtoMapper;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public MerchandisePrice createOrUpdate(@RequestBody @Valid PriceUpsertRequest body) {
-        MerchandisePrice mp = MerchandisePrice.builder()
-                .merchandiseUuid(body.merchandiseUuid())
-                .currency(body.currency())
-                .grossPrice(body.grossPrice())
-                .netPrice(body.netPrice())
-                .discountStackJson("[]")
-                .lastUpdate(Instant.now())
-                .validFrom(Instant.now())
-                .validTo(null)
-                .build();
-
-        return restService.savePrice(mp);
+    public PriceIntervalDto createOrUpdate(@RequestBody @Valid PriceIntervalDto dto) {
+        PriceInterval domain = dtoMapper.toDomain(dto);
+        PriceInterval saved = restService.savePrice(domain);
+        return dtoMapper.toDto(saved);
     }
-
-
-    record PriceUpsertRequest(
-            String merchandiseUuid,
-            String currency,
-            double grossPrice,
-            double netPrice
-    ) {}
-
-
     @GetMapping
-    public List<MerchandisePrice> all() {
-        return restService.findAll();
+    public void all() {
     }
-
-
     @GetMapping("/{id}")
-    public ResponseEntity<MerchandisePrice> getById(@PathVariable("id") Long id) {
-        return restService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public void getById(@PathVariable("id") Long id) {
     }
-
 }

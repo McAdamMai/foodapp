@@ -32,4 +32,28 @@ public class PriceIntervalDtoMapper {
                 domain.calcHash()
         );
     }
+    public  PriceKey toDomain(PriceKeyDto dto){
+        return new PriceKey(
+                dto.tenantId(),
+                dto.storeId(),
+                dto.skuId(),
+                dto.userId(),
+                dto.channelId()
+        );
+
+    }
+
+    public PriceInterval toDomain(PriceIntervalDto dto){
+        return new PriceInterval(
+                dto.intervalId(),
+                toDomain(dto.key()),
+                java.time.Instant.parse(dto.startAtUtc()),
+                dto.endAtUtc() != null ? java.time.Instant.parse(dto.endAtUtc()) : null,
+                dto.effectivePriceCent(),
+                dto.currency(),
+                dto.priceComponent(),
+                dto.provenance(),
+                dto.calcHash()
+        );
+    }
 }

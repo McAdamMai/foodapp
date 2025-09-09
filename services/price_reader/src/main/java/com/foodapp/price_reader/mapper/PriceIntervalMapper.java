@@ -39,6 +39,24 @@ public class PriceIntervalMapper {
                 entity.getCalcHash()
         );
     }
+
+    public PriceSnapshotIntervalEntity toEntity(PriceInterval domain){
+        return new PriceSnapshotIntervalEntity(
+                domain.intervalId(),
+                domain.key().tenantId(),
+                domain.key().storeId(),
+                domain.key().skuId(),
+                domain.key().userSegId(),
+                domain.key().channelId(),
+                domain.startAtUtc(),
+                domain.endAtUtc(),
+                domain.effectivePriceCent(),
+                domain.currency(),
+                domain.priceComponent().toString(),
+                domain.provenance().toString(),
+                domain.calcHash()
+        );
+    }
     private JsonNode readJson(String json) {
         try{
             // ternary operator condition? true_output : false_output;
