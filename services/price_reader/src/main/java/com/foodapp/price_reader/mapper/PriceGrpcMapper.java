@@ -1,7 +1,7 @@
 package com.foodapp.price_reader.mapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.foodapp.contracts.price_reader.v1.MerchandisePriceResponse;
+import com.foodapp.contracts.price_reader.v1.PriceResponse;
 import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.foodapp.price_reader.domain.models.PriceKey;
 import com.google.protobuf.Timestamp;
@@ -11,26 +11,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class PriceGrpcMapper {
 
-    public MerchandisePriceResponse toProto(PriceInterval domain) {
+    public PriceResponse toProto(PriceInterval domain) {
         // removed update time
-        int grossPrice = getGrossPriceFromComponent(domain.priceComponent());
-        return MerchandisePriceResponse.newBuilder()
-                .setMerchandiseUuid(domain.key().skuId())
+        int regularPrice = getRegularPriceFromComponent(domain.priceComponent());
+        return PriceResponse.newBuilder()
+                .setSkuId(domain.key().skuId())
                 .setCurrency(domain.currency())
-                .setGrossPrice(grossPrice)
-                .setNetPrice(domain.effectivePriceCent())
+                .setEffectivePriceCent(regularPrice)
+                .setRegularPriceCent(domain.effectivePriceCent())
                 .build();
     }
 
-    private int getGrossPriceFromComponent(JsonNode priceComponent) {
-        if(priceComponent != null && priceComponent.has("grossPrice")){
-            JsonNode grossPriceNode = priceComponent.get("grossPrice");
-            if(grossPriceNode.isInt()){ //Ensure it's an integer
-                return grossPriceNode.asInt();
+    private int getRegularPriceFromComponent(JsonNode priceComponent) {
+        if(priceComponent != null && priceComponent.has("regularPrice")){
+            JsonNode regularPriceNode = priceComponent.get("regularPrice");
+            if(regularPriceNode.isInt()){ //Ensure it's an integer
+                return regularPriceNode.asInt();
             } else {
-                throw new IllegalArgumentException("grossPrice must be an integer in priceComponent");
+                throw new IllegalArgumentException("regularPrice must be an integer in priceComponent");
             }
         }
-        throw new IllegalArgumentException("grossPrice key is missing in priceComponent");
+        throw new IllegalArgumentException("regularPrice key is missing in priceComponent");
     }
 }

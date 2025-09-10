@@ -7,20 +7,50 @@ option java_outer_classname = "PriceReaderProto";
 
 import "google/protobuf/timestamp.proto";
 
-message MerchandisePriceRequest {
-  string merchandise_uuid = 1;
-  string currency = 2;
-  google.protobuf.Timestamp at = 3; // optional: time at which to get the price
+service PriceService {
+  rpc GetPrice (PriceRequest) returns (PriceResponse);
+  rpc GetTimeline (TimelineRequest) returns (TimelineResponse);
 }
 
-message MerchandisePriceResponse {
-  string merchandise_uuid = 1;
+// lookup price by skuId
+message PriceRequest {
+  string skuId = 1;
+  google.protobuf.Timestamp at = 2; // optional: time at which to get the price
+}
+
+message PriceResponse {
+  string skuId = 1;
   string currency = 2;
-  double grossPrice = 3;
-  double netPrice = 4; //-1 if none
+  double effectivePriceCent = 3;
+  double regularPriceCent = 4; //-1 if none
   //google.protobuf.Timestamp last_update = 5; // when the price was last updated
 }
 
-service PriceReaderService {
-  rpc findPrice (MerchandisePriceRequest) returns (MerchandisePriceResponse);
+//lookup timeline by key
+message TimelineRequest {
+  PriceKey key = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+  int32 limit = 4; // will be clamped to [1, 1000]
+}
+
+message TimelineResponse {
+  repeated PriceInterval interval = 1;
+  int32 actual_limit = 2; // will be clamped to [1, 1000]
+}
+
+// shared identity for pricing lookups
+message PriceKey {
+  string tenant_id = 1;
+  string store_id = 2;
+  string skuId = 3;
+  // optional targeting;
+  string user_seg_id = 4;
+  string channel_id =5;
+}
+
+message PriceInterval {
+  google.protobuf.Timestamp start_at_utc = 1;
+  google.protobuf.Timestamp end_at_utc = 2;
+  string interval_id = 3;
 }
