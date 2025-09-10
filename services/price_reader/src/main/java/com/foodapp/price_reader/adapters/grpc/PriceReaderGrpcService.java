@@ -4,6 +4,7 @@ import com.foodapp.contracts.price_reader.v1.MerchandisePriceRequest;
 import com.foodapp.contracts.price_reader.v1.MerchandisePriceResponse;
 
 import com.foodapp.contracts.price_reader.v1.PriceReaderServiceGrpc;
+import com.foodapp.price_reader.domain.service.AdminRestfulService;
 import com.foodapp.price_reader.domain.service.PriceQueryService;
 import com.foodapp.price_reader.mapper.PriceGrpcMapper;
 import com.google.protobuf.Timestamp;
@@ -22,6 +23,7 @@ public class PriceReaderGrpcService extends PriceReaderServiceGrpc.PriceReaderSe
 
     private final PriceQueryService priceQueryService;
     private final PriceGrpcMapper grpcMapper;
+    private final AdminRestfulService adminRestfulService;
 
     @Override
     public void findPrice(MerchandisePriceRequest request, StreamObserver<MerchandisePriceResponse> responseObserver){
@@ -29,7 +31,7 @@ public class PriceReaderGrpcService extends PriceReaderServiceGrpc.PriceReaderSe
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("a timestamp is required").asException());
         } // time is essential
         try{
-            Optional<MerchandisePriceResponse> response = priceQueryService.findPrice(
+            Optional<MerchandisePriceResponse> response = adminRestfulService.findPrice(
                     request.getMerchandiseUuid(),
                     request.getCurrency(),
                     timeStampTranslator(request.getAt()))

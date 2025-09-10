@@ -1,6 +1,7 @@
 package com.foodapp.price_reader.domain.service;
 
 import com.foodapp.price_reader.domain.models.PriceInterval;
+import com.foodapp.price_reader.domain.models.PriceKey;
 import com.foodapp.price_reader.mapper.PriceIntervalMapper;
 import com.foodapp.price_reader.persistence.entity.PriceSnapshotIntervalEntity;
 import com.foodapp.price_reader.persistence.repository.PriceSnapshotIntervalRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -17,11 +19,10 @@ import java.util.Optional;
 public class AdminRestfulService {
 
     private final JpaPriceSnapshotIntervalRepository intervalRepo;
-    private final PriceIntervalMapper mapper; // Domain <-> Entity 映射器
+    private final PriceIntervalMapper mapper; // Domain <-> Entity
+    private final PriceSnapshotIntervalRepository repo;
 
-    /**
-     * 保存或更新价格快照
-     */
+
     public PriceInterval savePrice(PriceInterval domain) {
         // Domain -> Entity
         PriceSnapshotIntervalEntity entity = mapper.toEntity(domain);
@@ -30,17 +31,11 @@ public class AdminRestfulService {
         return mapper.toDomain(saved);
     }
 
-    /**
-     * 根据 ID 查找价格快照
-     */
     public Optional<PriceInterval> findById(String id) {
         return intervalRepo.findById(id)
                 .map(mapper::toDomain);
     }
 
-    /**
-     * 查询所有价格快照
-     */
     public List<PriceInterval> findAll() {
         return intervalRepo.findAll()
                 .stream()
@@ -48,8 +43,21 @@ public class AdminRestfulService {
                 .toList();
     }
 
-    public Optional<PriceInterval> findByValidPriceForInstant(String skuId, Instant at){
+    public Optional<PriceInterval> findPrice(String skuId, String currency,Instant at){
         return intervalRepo.findByValidPriceForInstant(skuId, at).map(mapper::toDomain);
     }
+    public List<PriceInterval> getTimeline(PriceKey key, Instant from, Instant to, int limit){
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(from);
+        Objects.requireNonNull(to);
+        if(!from.isBefore(to)){
+            throw new IllegalArgumentException("from must be before to");
+        }
+        // using composite key to lookup data
+        List<PriceSnapshotIntervalEntity> entities = repo.findOverlapping(key, from, to, limit);
+        return entities.stream().map(mapper::toDomain).toList();
+    }
+
+
 }
 
