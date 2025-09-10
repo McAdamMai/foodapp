@@ -1,0 +1,8 @@
+sql docker run command:
+docker run --name mysql-foodapp -e MYSQL_ROOT_PASSWORD=Admin123! -p 3307:3306 -v /Users/demaindai/Documents/persistence/foodapp:/var/lib/mysql -d mysql:8.0
+
+docker exec -it mysql-foodapp mysql -u root -p
+CREATE DATABASE foodapp;
+SHOW DATABASES;
+USE foodapp;
+SHOW TABLES;
