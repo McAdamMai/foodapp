@@ -16,4 +16,7 @@ public record PriceIntervalDto(
         JsonNode priceComponent,
         JsonNode provenance,
         String calcHash // nullable
-) {}
+) {
+
+
+}

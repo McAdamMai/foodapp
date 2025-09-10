@@ -5,6 +5,6 @@ public record PriceKeyDto(
     String tenantId,
     String storeId,
     String skuId,
-    String userId,
+    String userSegId,
     String channelId
 ){}

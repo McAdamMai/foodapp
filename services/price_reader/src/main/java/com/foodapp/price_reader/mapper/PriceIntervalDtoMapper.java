@@ -37,7 +37,7 @@ public class PriceIntervalDtoMapper {
                 dto.tenantId(),
                 dto.storeId(),
                 dto.skuId(),
-                dto.userId(),
+                dto.userSegId(),
                 dto.channelId()
         );
 
