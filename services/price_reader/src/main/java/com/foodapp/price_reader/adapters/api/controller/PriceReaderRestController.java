@@ -31,14 +31,14 @@ public class PriceReaderRestController {
         PriceInterval saved = restService.savePrice(domain);
         return dtoMapper.toDto(saved);
     }
-    @GetMapping
+    @GetMapping("/findPrice")
     public ResponseEntity<PriceIntervalDto> findPrice(
             @RequestParam String skuId,
             @RequestParam String currency,
             @RequestParam String at
     ){
         Instant atInstant = Instant.parse(at);
-        return restService.findPrice(skuId,currency,atInstant)
+        return restService.findPrice(skuId,atInstant)
                 .map(dtoMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

@@ -43,9 +43,10 @@ public class AdminRestfulService {
                 .toList();
     }
 
-    public Optional<PriceInterval> findPrice(String skuId, String currency,Instant at){
+    public Optional<PriceInterval> findPrice(String skuId,Instant at){
         return intervalRepo.findByValidPriceForInstant(skuId, at).map(mapper::toDomain);
     }
+
     public List<PriceInterval> getTimeline(PriceKey key, Instant from, Instant to, int limit){
         Objects.requireNonNull(key);
         Objects.requireNonNull(from);

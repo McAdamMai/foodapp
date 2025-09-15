@@ -1,11 +1,10 @@
 package com.foodapp.price_reader.adapters.grpc;
 
-import com.foodapp.contracts.price_reader.v1.MerchandisePriceRequest;
-import com.foodapp.contracts.price_reader.v1.MerchandisePriceResponse;
-
-import com.foodapp.contracts.price_reader.v1.PriceReaderServiceGrpc;
+import com.foodapp.contracts.price_reader.v1.PriceRequest;
+import com.foodapp.contracts.price_reader.v1.PriceResponse;
+import com.foodapp.contracts.price_reader.v1.PriceServiceGrpc;
 import com.foodapp.price_reader.domain.service.AdminRestfulService;
-import com.foodapp.price_reader.domain.service.PriceQueryService;
+
 import com.foodapp.price_reader.mapper.PriceGrpcMapper;
 import com.google.protobuf.Timestamp;
 import io.grpc.Status;
@@ -17,34 +16,36 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import java.time.Instant;
 import java.util.Optional;
 
+
 @GrpcService
 @RequiredArgsConstructor
-public class PriceReaderGrpcService extends PriceReaderServiceGrpc.PriceReaderServiceImplBase {
+public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBase {
 
-    private final PriceQueryService priceQueryService;
+
     private final PriceGrpcMapper grpcMapper;
     private final AdminRestfulService adminRestfulService;
 
     @Override
-    public void findPrice(MerchandisePriceRequest request, StreamObserver<MerchandisePriceResponse> responseObserver){
+    public void getPrice(PriceRequest request, StreamObserver<PriceResponse> responseObserver){
         if(!request.hasAt()) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("a timestamp is required").asException());
-        } // time is essential
-        try{
-            Optional<MerchandisePriceResponse> response = adminRestfulService.findPrice(
-                    request.getMerchandiseUuid(),
-                    request.getCurrency(),
-                    timeStampTranslator(request.getAt()))
+            return;
+        }
+
+        try {
+            Optional<PriceResponse> response = adminRestfulService.findPrice(
+                            request.getSkuId(),
+                            timeStampTranslator(request.getAt()))
                     .map(grpcMapper::toProto);
 
             if(response.isPresent()){
                 responseObserver.onNext(response.get());
-            }else {
+            } else {
                 responseObserver.onError(Status.NOT_FOUND.asException());
             }
 
             responseObserver.onCompleted();
-        }catch (Exception e){
+        } catch (Exception e) {
             responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
         }
     }
