@@ -19,7 +19,7 @@ public class PriceQueryService {
     //https://poe.com/s/dKxtsOkluHPXl6jONJI7 following this to implement lookup
 
     //Avoid transport types (gRPC Timestamp) in the domain/service layer.
-    public Optional<PriceInterval> findPrice(String skuID, Instant at) {
+    public Optional<PriceInterval> getPrice(String skuID, Instant at) {
         return repo.findByValidPriceForInstant(skuID, at)
                 .map(domainMapper::toDomain);
     }

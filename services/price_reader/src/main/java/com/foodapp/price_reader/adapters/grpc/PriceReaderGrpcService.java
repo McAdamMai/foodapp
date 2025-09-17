@@ -1,9 +1,7 @@
 package com.foodapp.price_reader.adapters.grpc;
 
-import com.foodapp.contracts.price_reader.v1.PriceRequest;
-import com.foodapp.contracts.price_reader.v1.PriceResponse;
-import com.foodapp.contracts.price_reader.v1.PriceServiceGrpc;
-import com.foodapp.price_reader.domain.service.AdminRestfulService;
+import com.foodapp.contracts.price_reader.v1.*;
+import com.foodapp.price_reader.domain.service.PriceQueryService;
 
 import com.foodapp.price_reader.mapper.PriceGrpcMapper;
 import com.google.protobuf.Timestamp;
@@ -21,9 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBase {
 
-
     private final PriceGrpcMapper grpcMapper;
-    private final AdminRestfulService adminRestfulService;
+    private final PriceQueryService priceQueryService;
 
     @Override
     public void getPrice(PriceRequest request, StreamObserver<PriceResponse> responseObserver){
@@ -31,9 +28,8 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("a timestamp is required").asException());
             return;
         }
-
         try {
-            Optional<PriceResponse> response = adminRestfulService.findPrice(
+            Optional<PriceResponse> response = priceQueryService.getPrice(
                             request.getSkuId(),
                             timeStampTranslator(request.getAt()))
                     .map(grpcMapper::toProto);
@@ -43,8 +39,8 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
             } else {
                 responseObserver.onError(Status.NOT_FOUND.asException());
             }
-
             responseObserver.onCompleted();
+
         } catch (Exception e) {
             responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
         }
@@ -52,6 +48,11 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
 
     private Instant timeStampTranslator(Timestamp at){
         return Instant.ofEpochSecond(at.getSeconds(), at.getNanos());
+    }
+
+    @Override
+    public void getTimeline(TimelineRequest request, StreamObserver<TimelineResponse> responseObserver) {
+        responseObserver.onError(Status.UNIMPLEMENTED.withDescription("Not yet implemented").asException());
     }
 }
 // PriceReaderGrpcService class is annotated with @GrpcService,
