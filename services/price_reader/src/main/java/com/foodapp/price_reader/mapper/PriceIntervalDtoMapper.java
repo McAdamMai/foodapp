@@ -40,7 +40,6 @@ public class PriceIntervalDtoMapper {
                 dto.userSegId(),
                 dto.channelId()
         );
-
     }
 
     public PriceInterval toDomain(PriceIntervalDto dto){

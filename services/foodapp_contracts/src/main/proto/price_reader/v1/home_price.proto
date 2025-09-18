@@ -35,7 +35,7 @@ message TimelineRequest {
 }
 
 message TimelineResponse {
-  repeated PriceInterval interval = 1;
+  repeated PriceInterval interval = 1; // output is a list
   int32 actual_limit = 2; // will be clamped to [1, 1000]
 }
 
@@ -50,7 +50,8 @@ message PriceKey {
 }
 
 message PriceInterval {
-  google.protobuf.Timestamp start_at_utc = 1;
-  google.protobuf.Timestamp end_at_utc = 2;
-  string interval_id = 3;
+  string interval_id = 1;
+  google.protobuf.Timestamp start_at_utc = 2;
+  google.protobuf.Timestamp end_at_utc = 3;
+  PriceResponse priceResponse = 4;
 }

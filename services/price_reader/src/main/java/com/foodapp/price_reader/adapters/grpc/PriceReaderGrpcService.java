@@ -2,7 +2,7 @@ package com.foodapp.price_reader.adapters.grpc;
 
 import com.foodapp.contracts.price_reader.v1.*;
 import com.foodapp.price_reader.domain.service.PriceQueryService;
-
+import com.foodapp.price_reader.domain.service.TimelineService;
 import com.foodapp.price_reader.mapper.PriceGrpcMapper;
 import com.google.protobuf.Timestamp;
 import io.grpc.Status;
@@ -21,6 +21,7 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
 
     private final PriceGrpcMapper grpcMapper;
     private final PriceQueryService priceQueryService;
+    private final TimelineService timelineService;
 
     @Override
     public void getPrice(PriceRequest request, StreamObserver<PriceResponse> responseObserver){
@@ -46,14 +47,36 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
         }
     }
 
+    @Override
+    public void getTimeline(TimelineRequest request, StreamObserver<TimelineResponse> responseObserver) {
+        if(!request.hasKey()){
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("a key is required").asException());
+            return;
+        }
+        try {
+            // call the timeline service to get the domain data
+            var domainIntervals = timelineService.getTimeline(
+                    grpcMapper.toDomain(request.getKey()),
+                    timeStampTranslator(request.getFrom()),
+                    timeStampTranslator(request.getTo()),
+                    request.getLimit());
+
+            // convert to response
+            TimelineResponse response = grpcMapper.toTimelineResponseProto(domainIntervals, request.getLimit());
+
+            // send response to client
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }catch (Exception e){
+            //handle exception and send error to the client
+            responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
+        }
+    }
+
     private Instant timeStampTranslator(Timestamp at){
         return Instant.ofEpochSecond(at.getSeconds(), at.getNanos());
     }
 
-    @Override
-    public void getTimeline(TimelineRequest request, StreamObserver<TimelineResponse> responseObserver) {
-        responseObserver.onError(Status.UNIMPLEMENTED.withDescription("Not yet implemented").asException());
-    }
 }
 // PriceReaderGrpcService class is annotated with @GrpcService,
 // which marks it as a gRPC service that will be registered and exposed by the Netty-based gRPC server in the Spring Boot application
