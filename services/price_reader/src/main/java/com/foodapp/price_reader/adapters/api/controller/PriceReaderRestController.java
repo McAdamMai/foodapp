@@ -26,10 +26,16 @@ public class PriceReaderRestController {
     private final PriceIntervalDtoMapper dtoMapper;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PriceIntervalDto createOrUpdate(@RequestBody @Valid PriceIntervalDto dto) {
-        PriceInterval domain = dtoMapper.toDomain(dto);
-        PriceInterval saved = restService.savePrice(domain);
-        return dtoMapper.toDto(saved);
+    public List<PriceIntervalDto> createOrUpdate(@RequestBody @Valid List<PriceIntervalDto> dtos) {
+        List<PriceInterval> domains = dtos.stream()
+                .map(dtoMapper::toDomain)
+                .toList();
+        List<PriceInterval> saved = restService.saveBatchPrices(domains);
+
+        return  saved.stream()
+                .map(dtoMapper::toDto)
+                .toList();
+
     }
     @GetMapping("/findPrice")
     public ResponseEntity<PriceIntervalDto> findPrice(

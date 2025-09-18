@@ -1,10 +1,13 @@
 package com.foodapp.price_reader.domain.models;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.*;
+
 
 import java.time.Instant;
 import java.util.Set;
 
+@Builder
 public record PriceInterval(
         String intervalId,
         PriceKey key,

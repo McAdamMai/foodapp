@@ -8,6 +8,7 @@ import com.foodapp.price_reader.persistence.repository.PriceSnapshotIntervalRepo
 import com.foodapp.price_reader.persistence.repository.jpa.JpaPriceSnapshotIntervalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.ls.LSException;
 
 import java.time.Instant;
 import java.util.List;
@@ -23,12 +24,21 @@ public class AdminRestfulService {
     private final PriceSnapshotIntervalRepository repo;
 
 
-    public PriceInterval savePrice(PriceInterval domain) {
-        // Domain -> Entity
-        PriceSnapshotIntervalEntity entity = mapper.toEntity(domain);
-        PriceSnapshotIntervalEntity saved = intervalRepo.save(entity);
-        // Entity -> Domain
-        return mapper.toDomain(saved);
+    public List<PriceInterval> saveBatchPrices(List<PriceInterval> intervals) {
+        if (intervals.size() > 100) {
+            throw new IllegalArgumentException("Batch size cannot exceed 100");
+        }
+        return intervals.stream()
+                .map(interval -> {
+                    validateBussinessRules(interval);
+                    PriceSnapshotIntervalEntity entity = mapper.toEntity(interval);
+                    PriceSnapshotIntervalEntity saved = intervalRepo.save(entity);
+
+                    return mapper.toDomain(saved);
+
+                })
+                .toList();
+
     }
 
     public Optional<PriceInterval> findById(String id) {
@@ -57,6 +67,22 @@ public class AdminRestfulService {
         // using composite key to lookup data
         List<PriceSnapshotIntervalEntity> entities = repo.findOverlapping(key, from, to, limit);
         return entities.stream().map(mapper::toDomain).toList();
+    }
+    public void validateBussinessRules(PriceInterval interval) {
+        if (interval.startAtUtc().isAfter(interval.endAtUtc())) {
+            throw new IllegalArgumentException("Start time must be earlier than end time");
+        }
+        if (interval.effectivePriceCent() > interval.priceComponent().get("regularPrice").asInt()) {
+            throw new IllegalArgumentException("Effective price must not exceed regular price");
+        }
+
+        if (interval.effectivePriceCent() <= 0 || interval.priceComponent().get("regularPrice").asInt() <= 0) {
+            throw new IllegalArgumentException("Prices must be greater than zero");
+        }
+
+        if (interval.priceComponent().get("taxRate").asInt() < 0) {
+            throw new IllegalArgumentException("Tax rate must be >= 0");
+        }
     }
 
 
