@@ -23,8 +23,8 @@ public class PriceGrpcMapper {
         return PriceResponse.newBuilder()
                 .setSkuId(domain.key().skuId())
                 .setCurrency(domain.currency())
-                .setEffectivePriceCent(regularPrice)
-                .setRegularPriceCent(domain.effectivePriceCent())
+                .setEffectivePriceCent(domain.effectivePriceCent())
+                .setRegularPriceCent(regularPrice)
                 .build();
     }
 

@@ -30,19 +30,26 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
             return;
         }
         try {
+            System.out.println("Received request for skuID: " + request.getSkuId());
             Optional<PriceResponse> response = priceQueryService.getPrice(
                             request.getSkuId(),
                             timeStampTranslator(request.getAt()))
                     .map(grpcMapper::toProto);
 
             if(response.isPresent()){
+                System.out.println(String.format("Sending request for skuID: %s at timestamp: %s", request.getSkuId(), timeStampTranslator(request.getAt())));
                 responseObserver.onNext(response.get());
             } else {
+                System.out.println(String.format("No price found for skuID: %s at timestamp: %s", request.getSkuId(), timeStampTranslator(request.getAt())));
                 responseObserver.onError(Status.NOT_FOUND.asException());
+                return;
             }
+            // onCompleted and onError cannot exist in on run, every onError should call return
+            System.out.println("Call completed for skuID: " + request.getSkuId());
             responseObserver.onCompleted();
 
         } catch (Exception e) {
+            System.out.println("Error occurs while processing: " + e.getMessage());
             responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
         }
     }
@@ -74,6 +81,7 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
     }
 
     private Instant timeStampTranslator(Timestamp at){
+        System.out.println("Converting timestamp : " + at );
         return Instant.ofEpochSecond(at.getSeconds(), at.getNanos());
     }
 
