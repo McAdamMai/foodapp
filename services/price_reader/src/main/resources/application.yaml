@@ -15,7 +15,33 @@ spring:
   sql:
     init:
       mode: always
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+          time-between-eviction-runs: 120s
+        shutdown-timeout: 100ms
+      connect-timeout: 2000ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "cache"
 
+redis:
+  cache:
+    expiration:
+      user: 300000
+      product: 1800000
 
 server:
   port: 8900  # RESTful HTTP port (Tomcat)
