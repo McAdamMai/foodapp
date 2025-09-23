@@ -35,13 +35,23 @@ spring:
       time-to-live: 600000
       cache-null-values: false
       use-key-prefix: true
-      key-prefix: "cache"
+      key-prefix: "cache::"
 
 redis:
   cache:
     expiration:
       user: 300000
       product: 1800000
+
+app: # for data injection
+  cache:
+    redis:
+      cacheNullValue: false
+      keyPrefix: reader # all cache in reader services should be named as reader_xxx;
+    price:
+      ttl: PT5M # 5 minutes
+    timeline:
+      ttl: PT5M # 5 minutes
 
 server:
   port: 8900  # RESTful HTTP port (Tomcat)

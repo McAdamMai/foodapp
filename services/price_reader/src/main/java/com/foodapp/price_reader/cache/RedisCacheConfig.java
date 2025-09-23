@@ -28,8 +28,8 @@ public class RedisCacheConfig {
 
     @Bean
     public RedisCacheConfiguration baseRedisCacheConfiguration(
-            @Value("{app.cache.redis.cacheNullValue:false}") boolean cacheNullValue,
-            @Value("{app.cache.redis.keyPrefix}") String keyPrefix
+            @Value("${app.cache.redis.cacheNullValue:false}") boolean cacheNullValue,
+            @Value("${app.cache.redis.keyPrefix}") String keyPrefix
     ) {
         var keySerializer = new StringRedisSerializer();
         var objectMapper = new ObjectMapper()
