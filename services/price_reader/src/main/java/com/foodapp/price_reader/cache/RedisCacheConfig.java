@@ -22,22 +22,23 @@ import java.util.Map;
 
 @Configuration
 @EnableCaching
-public class RedisCacheConfig {
+public class RedisCacheConfig { // a class contain RedisCacheConfiguration and RedisCacheManager
     public static final String PRICE_CACHE = "price_cache";
     public static final String TIMELINE_CACHE = "timelineCache";
 
     @Bean
-    public RedisCacheConfiguration baseRedisCacheConfiguration(
+    public RedisCacheConfiguration baseRedisCacheConfiguration( // create a foundation configuration that will be used in all caches
             @Value("${app.cache.redis.cacheNullValue:false}") boolean cacheNullValue,
             @Value("${app.cache.redis.keyPrefix}") String keyPrefix
     ) {
+        // serialize the key to plain text;
         var keySerializer = new StringRedisSerializer();
         var objectMapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
                 .registerModule(new Jdk8Module())
                 .registerModule(new JavaTimeModule())
                 .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-
+        // Serialize an object into JSON using the configured mapper
         var valueSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
@@ -62,6 +63,7 @@ public class RedisCacheConfig {
             @Value("${app.cache.timeline.ttl:PT5M}") Duration timelineTtl
     ) {
         Map<String, RedisCacheConfiguration> perCacheConfigurations = new HashMap<>();
+        // creates two distinct caches with different expiration time
         perCacheConfigurations.put(PRICE_CACHE, baseRedisCacheConfiguration.entryTtl(priceTtl)); // add individual manager
         perCacheConfigurations.put(TIMELINE_CACHE, baseRedisCacheConfiguration.entryTtl(timelineTtl));
         return RedisCacheManager.builder(connectionFactory)
@@ -69,18 +71,5 @@ public class RedisCacheConfig {
                 .withInitialCacheConfigurations(perCacheConfigurations)
                 .transactionAware()
                 .build();
-    }
-
-    @Bean
-    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer(
-            @Value("${app.cache.price.ttl:PT5M}") Duration priceTtl,
-            @Value("${app.cache.timeline.ttl:PT5M}") Duration timelineTtl
-    ){
-        return builder -> {
-            builder.withCacheConfiguration(PRICE_CACHE,
-                    RedisCacheConfiguration.defaultCacheConfig().entryTtl(priceTtl));
-            builder.withCacheConfiguration(TIMELINE_CACHE,
-                    RedisCacheConfiguration.defaultCacheConfig().entryTtl(timelineTtl));
-        };
     }
 }
