@@ -83,3 +83,6 @@ management:
     metrics:
       export:
         enabled: true
+jwt:
+  secret: my-super-secret-key-which-should-be-long
+  expiration: 3600000  # 1 hour
