@@ -40,7 +40,6 @@ public class PriceReaderRestController {
     @GetMapping("/findPrice")
     public ResponseEntity<PriceIntervalDto> findPrice(
             @RequestParam String skuId,
-            @RequestParam String currency,
             @RequestParam String at
     ){
         Instant atInstant = Instant.parse(at);
@@ -48,8 +47,6 @@ public class PriceReaderRestController {
                 .map(dtoMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-
-
     }
 
    @GetMapping("/timeline")
