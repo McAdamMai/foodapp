@@ -35,7 +35,7 @@ public class RedisCacheConfig { // a class contain RedisCacheConfiguration and R
         var keySerializer = new StringRedisSerializer();
         var objectMapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
-                .registerModule(new Jdk8Module())
+                .registerModule(new Jdk8Module()) //use to ensure availability of optional
                 .registerModule(new JavaTimeModule())
                 .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         // Serialize an object into JSON using the configured mapper
@@ -59,6 +59,7 @@ public class RedisCacheConfig { // a class contain RedisCacheConfiguration and R
     public RedisCacheManager redisCacheManager(
             RedisConnectionFactory connectionFactory,
             RedisCacheConfiguration baseRedisCacheConfiguration,
+            // define ttl for price and timeline
             @Value("${app.cache.price.ttl:PT5M}") Duration priceTtl,
             @Value("${app.cache.timeline.ttl:PT5M}") Duration timelineTtl
     ) {

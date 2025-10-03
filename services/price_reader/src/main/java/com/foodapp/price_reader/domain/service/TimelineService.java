@@ -1,5 +1,6 @@
 package com.foodapp.price_reader.domain.service;
 
+import com.foodapp.price_reader.cache.RedisCacheConfig;
 import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.foodapp.price_reader.domain.models.PriceKey;
 import com.foodapp.price_reader.enums.LimitConstraints;
@@ -7,6 +8,7 @@ import com.foodapp.price_reader.mapper.PriceIntervalMapper;
 import com.foodapp.price_reader.persistence.entity.PriceSnapshotIntervalEntity;
 import com.foodapp.price_reader.persistence.repository.PriceSnapshotIntervalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,6 +25,10 @@ public class TimelineService {
     private static final int MAX_LIMIT = LimitConstraints.MAX_LIMIT.getValue();
     private static final int MIN_LIMIT = LimitConstraints.MIN_LIMIT.getValue();
 
+    @Cacheable(
+            value = RedisCacheConfig.TIMELINE_CACHE,
+            key = "#key.tenantId() + ':' + #key.storeId() + ':' + #key.skuId() + '::' + #from.toEpochMilli() + '::' + #to.toEpochMilli()  + '::' + #limit"
+    )
     public List<PriceInterval> getTimeline(PriceKey key, Instant from, Instant to, int limit){
         Objects.requireNonNull(key);
         Objects.requireNonNull(from);
@@ -30,7 +36,7 @@ public class TimelineService {
         if(!from.isBefore(to)){
             throw new IllegalArgumentException("from must be before to");
         }
-
+        // min =< limit =< max
         int clampedLimit = Math.min(Math.max(MIN_LIMIT, limit), MAX_LIMIT);
 
         //Defensive re-clamping

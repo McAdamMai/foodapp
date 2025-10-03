@@ -30,6 +30,7 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
             return;
         }
         try {
+            // core logic, call getPrice method from price Query Service
             System.out.println("Received request for skuID: " + request.getSkuId());
             Optional<PriceResponse> response = priceQueryService.getPrice(
                             request.getSkuId(),
