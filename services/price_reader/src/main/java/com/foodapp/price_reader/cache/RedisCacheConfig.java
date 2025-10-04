@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.foodapp.price_reader.domain.models.PriceInterval;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -26,35 +27,39 @@ public class RedisCacheConfig { // a class contain RedisCacheConfiguration and R
     public static final String PRICE_CACHE = "price_cache";
     public static final String TIMELINE_CACHE = "timelineCache";
 
-    @Bean
-    public RedisCacheConfiguration baseRedisCacheConfiguration( // create a foundation configuration that will be used in all caches
-            @Value("${app.cache.redis.cacheNullValue:false}") boolean cacheNullValue,
-            @Value("${app.cache.redis.keyPrefix}") String keyPrefix
-    ) {
-        // serialize the key to plain text;
-        var keySerializer = new StringRedisSerializer();
-        var objectMapper = new ObjectMapper()
+    private ObjectMapper objectMapper(){
+        return new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
-                .registerModule(new Jdk8Module()) //use to ensure availability of optional
+                .registerModule(new Jdk8Module())
                 .registerModule(new JavaTimeModule())
                 .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        // Serialize an object into JSON using the configured mapper
-        var valueSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-
-        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer))
-                .disableCachingNullValues();
-
-        if (cacheNullValue) {
-            defaultCacheConfig = defaultCacheConfig.entryTtl(Duration.ZERO); // no-op; keeping disable by default
-        }
-        if (keyPrefix != null && !keyPrefix.isBlank()) {
-            defaultCacheConfig = defaultCacheConfig.prefixCacheNameWith(keyPrefix + "::");
-        }
-        return defaultCacheConfig;
     }
 
+    @Bean
+    public RedisCacheConfiguration baseRedisCacheConfiguration( // create a foundation configuration that will be used in all caches
+            @Value("${app.cache.redis.cacheNullValue:false}") boolean cacheNullValue, //
+            @Value("${app.cache.redis.keyPrefix}") String keyPrefix
+    ) {
+        // serialize the key from Java string to UTF-8bytes;
+        // deserialize the UTF-8bytes to Java string;
+        var keySerializer = new StringRedisSerializer();
+
+        // add keySerializer first
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer))
+                .disableCachingNullValues();
+
+        // null value won't be stored in redis
+        if (cacheNullValue) {
+            config = config.entryTtl(Duration.ZERO); // no-op; keeping disable by default
+        }
+        if (keyPrefix != null && !keyPrefix.isBlank()) {
+            config = config.prefixCacheNameWith(keyPrefix + "::");
+        }
+        return config;
+    }
+
+    // where various distinct forms of data are managed;
     @Bean
     public RedisCacheManager redisCacheManager(
             RedisConnectionFactory connectionFactory,
@@ -63,10 +68,22 @@ public class RedisCacheConfig { // a class contain RedisCacheConfiguration and R
             @Value("${app.cache.price.ttl:PT5M}") Duration priceTtl,
             @Value("${app.cache.timeline.ttl:PT5M}") Duration timelineTtl
     ) {
+        ObjectMapper mapper = objectMapper();
+
+        // Type-aware value serializers
+        var priceIntervalSerializer = new Jackson2JsonRedisSerializer<>(objectMapper(), PriceInterval.class);
+
+        // TODO: add other models here, e.g. Timeline.class:
+        // var timelineValueSerializer = new Jackson2JsonRedisSerializer<>(objectMapper(), Timeline.class);
+
         Map<String, RedisCacheConfiguration> perCacheConfigurations = new HashMap<>();
         // creates two distinct caches with different expiration time
-        perCacheConfigurations.put(PRICE_CACHE, baseRedisCacheConfiguration.entryTtl(priceTtl)); // add individual manager
-        perCacheConfigurations.put(TIMELINE_CACHE, baseRedisCacheConfiguration.entryTtl(timelineTtl));
+        perCacheConfigurations.put(PRICE_CACHE, baseRedisCacheConfiguration
+                .entryTtl(priceTtl)
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(priceIntervalSerializer))); // add individual manager
+        perCacheConfigurations.put(TIMELINE_CACHE, baseRedisCacheConfiguration
+                .entryTtl(timelineTtl));
+
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(baseRedisCacheConfiguration)
                 .withInitialCacheConfigurations(perCacheConfigurations)

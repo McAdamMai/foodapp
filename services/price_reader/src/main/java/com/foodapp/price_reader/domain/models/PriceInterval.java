@@ -1,5 +1,6 @@
 package com.foodapp.price_reader.domain.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.*;
 
@@ -7,6 +8,7 @@ import lombok.*;
 import java.time.Instant;
 import java.util.Set;
 
+@JsonIgnoreProperties(ignoreUnknown = true) // enable backward compatibility
 @Builder
 public record PriceInterval(
         String intervalId,

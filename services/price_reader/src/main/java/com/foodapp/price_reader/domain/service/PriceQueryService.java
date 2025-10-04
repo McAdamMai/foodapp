@@ -24,8 +24,8 @@ public class PriceQueryService {
     // Express absence explicitly, good fit for returning types where "not found is normal"
     @Cacheable(
             value = RedisCacheConfig.PRICE_CACHE,
-            key = "#skuID + '::' + #at.toEpochMilli()"
-           //unless = "#result == null || !#result.isPresent()" // differentiate the null and not found
+            key = "#skuID + '::' + #at.toEpochMilli()",
+           unless = "#result == null || #result instanceof T(java.util.Optional) && !#result.isPresent()" // differentiate the null and not found
     )
     public Optional<PriceInterval> getPrice(String skuID, Instant at) {
         return repo.findByValidPriceForInstant(skuID, at)
