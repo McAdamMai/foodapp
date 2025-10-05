@@ -1,8 +1,10 @@
 package com.foodapp.price_reader.persistence.repository.jpa;
 
 import com.foodapp.price_reader.persistence.entity.PriceSnapshotIntervalEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -48,4 +50,29 @@ public interface JpaPriceSnapshotIntervalRepository extends JpaRepository<PriceS
             @Param("to") Instant to,
             Pageable pageable
     );
+    void deleteBySkuId(String skuid);
+
+    @Modifying
+    @Transactional
+    @Query("""
+        UPDATE PriceSnapshotIntervalEntity p
+        set
+            p.effectivePriceCents=COALESCE(:price, p.effectivePriceCents),
+            p.currency= COALESCE(:currency, p.currency),
+            p.endAtUtc= COALESCE(:endAtUtc, p.endAtUtc),
+            p.priceComponentJson=COALESCE(:priceComponentJson, p.priceComponentJson),
+            p.provenanceJson =COALESCE(:provenanceJson, p.provenanceJson)
+        WHERE p.intervalId = :intervalId
+        """)
+    int updateDynamicFields(
+            @Param("intervalId") String intervalId,
+            @Param("price") Integer price,
+            @Param("currency") String currency,
+            @Param("endAtUtc") Instant endAtUtc,
+            @Param("priceComponentJson") String priceComponentJson,
+            @Param("provenanceJson") String provenanceJson
+    );
+
+
+
 }

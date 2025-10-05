@@ -75,6 +75,17 @@ public class PriceReaderRestController {
 
        return ResponseEntity.ok(result);
    }
+   @DeleteMapping("/delete")
+   public ResponseEntity<Void> deleteBySku(@RequestParam String skuId){
+        restService.deleteBySkuId(skuId);
+        return ResponseEntity.noContent().build();
+   }
+
+   @PutMapping("/{id}")
+   public ResponseEntity<String> updatePrice(@PathVariable String id,@RequestBody PriceIntervalDto dto){
+        restService.updateInterval(id, dto);
+        return ResponseEntity.ok("Price interval updated successfully");
+   }
 
 
 }

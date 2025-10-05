@@ -1,11 +1,15 @@
 package com.foodapp.price_reader.domain.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.foodapp.price_reader.adapters.api.dto.PriceIntervalDto;
 import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.foodapp.price_reader.domain.models.PriceKey;
 import com.foodapp.price_reader.mapper.PriceIntervalMapper;
 import com.foodapp.price_reader.persistence.entity.PriceSnapshotIntervalEntity;
 import com.foodapp.price_reader.persistence.repository.PriceSnapshotIntervalRepository;
 import com.foodapp.price_reader.persistence.repository.jpa.JpaPriceSnapshotIntervalRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.ls.LSException;
@@ -22,6 +26,7 @@ public class AdminRestfulService {
     private final JpaPriceSnapshotIntervalRepository intervalRepo;
     private final PriceIntervalMapper mapper; // Domain <-> Entity
     private final PriceSnapshotIntervalRepository repo;
+    private final ObjectMapper objectMapper;
 
 
     public List<PriceInterval> saveBatchPrices(List<PriceInterval> intervals) {
@@ -84,6 +89,34 @@ public class AdminRestfulService {
             throw new IllegalArgumentException("Tax rate must be >= 0");
         }
     }
+
+    public void deleteBySkuId(String skuId){
+        intervalRepo.deleteBySkuId(skuId);
+    }
+
+    @Transactional
+    public void updateInterval(String id, PriceIntervalDto dto){
+        try {
+            int updated = intervalRepo.updateDynamicFields(
+                    id,
+                    dto.effectivePriceCent(),
+                    dto.currency(),
+                    dto.endAtUtc() != null ? Instant.parse(dto.endAtUtc()) : null,
+                    dto.priceComponent() != null ? objectMapper.writeValueAsString(dto.priceComponent()) : null,
+                    dto.provenance() != null ? objectMapper.writeValueAsString(dto.provenance()) : null
+            );
+
+            if (updated == 0) {
+                throw new IllegalArgumentException("Record not found or unchanged: " + id);
+            }
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize JSON fields", e);
+        }
+
+    }
+
+
 
 
 }
