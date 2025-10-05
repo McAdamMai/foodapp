@@ -9,10 +9,12 @@ import "google/protobuf/timestamp.proto";
 
 service PriceService {
   rpc GetPrice (PriceRequest) returns (PriceResponse);
+  rpc GetPriceBatch(PriceListRequest) returns (PriceListResponse);
+  rpc GetPriceStream (PriceStreamRequest) returns (stream PriceResponse);
   rpc GetTimeline (TimelineRequest) returns (TimelineResponse);
 }
 
-// lookup price by skuId
+// lookup price by a single skuId
 message PriceRequest {
   string skuId = 1;
   google.protobuf.Timestamp at = 2; // optional: time at which to get the price
@@ -24,6 +26,27 @@ message PriceResponse {
   double effectivePriceCent = 3;
   double regularPriceCent = 4; //-1 if none
   //google.protobuf.Timestamp last_update = 5; // when the price was last updated
+  string status = 6; //use to represent the status of response, to address partial failure in batch calls
+}
+
+// lookup price by a list of skuId, when the scale is around 10-50 skuId
+message PriceListRequest {
+  repeated string skuIds = 1;
+  google.protobuf.Timestamp at =2;
+}
+
+message PriceListResponse {
+  repeated PriceResponse priceResponses = 1;
+}
+
+// look up price by a stream of calls, when a extremely large sku list is called or a continuous data
+// not suitable for a smaller batch of sku because:
+// overhead is introduced by stream setup and teardown, serialization per message
+message PriceStreamRequest{
+  repeated string skuIds = 1;
+  google.protobuf.Timestamp at = 2;
+  string locale = 3;
+  //string client_platform = 4;
 }
 
 //lookup timeline by key
