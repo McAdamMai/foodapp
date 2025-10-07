@@ -33,16 +33,19 @@ public class AdminRestfulService {
         if (intervals.size() > 100) {
             throw new IllegalArgumentException("Batch size cannot exceed 100");
         }
-        return intervals.stream()
-                .map(interval -> {
-                    validateBussinessRules(interval);
-                    PriceSnapshotIntervalEntity entity = mapper.toEntity(interval);
-                    PriceSnapshotIntervalEntity saved = intervalRepo.save(entity);
-
-                    return mapper.toDomain(saved);
-
-                })
+        List<PriceSnapshotIntervalEntity> entities = intervals.stream()
+                .peek(this::validateBussinessRules)
+                .map(mapper::toEntity)
                 .toList();
+
+        List<PriceSnapshotIntervalEntity> savedEntites =intervalRepo.saveAll(entities);
+
+        return savedEntites.stream()
+                .map(mapper::toDomain)
+                .toList();
+
+
+
 
     }
 
@@ -120,4 +123,3 @@ public class AdminRestfulService {
 
 
 }
-
