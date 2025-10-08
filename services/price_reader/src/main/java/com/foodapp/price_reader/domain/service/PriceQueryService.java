@@ -3,19 +3,26 @@ package com.foodapp.price_reader.domain.service;
 import com.foodapp.price_reader.cache.RedisCacheConfig;
 import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.foodapp.price_reader.mapper.PriceIntervalMapper;
+import com.foodapp.price_reader.persistence.entity.PriceSnapshotIntervalEntity;
+import com.foodapp.price_reader.persistence.repository.PriceSnapshotIntervalListRepository;
 import com.foodapp.price_reader.persistence.repository.jpa.JpaPriceSnapshotIntervalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PriceQueryService {
 
     private final JpaPriceSnapshotIntervalRepository repo;
+    private final PriceSnapshotIntervalListRepository repoList;
 
     private final PriceIntervalMapper domainMapper;
     //https://poe.com/s/dKxtsOkluHPXl6jONJI7 following this to implement lookup
@@ -30,5 +37,9 @@ public class PriceQueryService {
     public Optional<PriceInterval> getPrice(String skuID, Instant at) {
         return repo.findByValidPriceForInstant(skuID, at)
                 .map(domainMapper::toDomain);
+    }
+
+    public Map<String, Optional<PriceInterval>> getPrices(List<String> skuIDs, Instant at) {
+        return repoList.getSnapshotPriceList(skuIDs, at);
     }
 }

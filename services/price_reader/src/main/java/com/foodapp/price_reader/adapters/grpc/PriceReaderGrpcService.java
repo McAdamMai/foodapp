@@ -4,6 +4,7 @@ import com.foodapp.contracts.price_reader.v1.*;
 import com.foodapp.price_reader.domain.service.PriceQueryService;
 import com.foodapp.price_reader.domain.service.TimelineService;
 import com.foodapp.price_reader.mapper.PriceGrpcMapper;
+import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.google.protobuf.Timestamp;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -12,7 +13,10 @@ import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
 
 
 @GrpcService
@@ -53,6 +57,28 @@ public class PriceReaderGrpcService extends PriceServiceGrpc.PriceServiceImplBas
             System.out.println("Error occurs while processing: " + e.getMessage());
             responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
         }
+    }
+
+    @Override
+    public void getPriceBatch(PriceListRequest request, StreamObserver<PriceListResponse> responseObserver){
+        if(!request.hasAt()){
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("a time stamp is require").asException());
+            return;
+        }
+        try{
+            System.out.println("Received request for skuID: ");
+            Map<String, Optional<PriceInterval>> res = priceQueryService.getPrices(
+                    request.getSkuIdsList(),
+                    timeStampTranslator(request.getAt()));
+            PriceListResponse response = grpcMapper.mapToProto(res);
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            System.out.println("Error occurs while processing: " + e.getMessage());
+            responseObserver.onError(new StatusRuntimeException(Status.INTERNAL.withDescription(e.getMessage())));
+        }
+
     }
 
     @Override

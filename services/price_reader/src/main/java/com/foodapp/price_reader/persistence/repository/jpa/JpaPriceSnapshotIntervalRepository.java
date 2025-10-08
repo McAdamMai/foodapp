@@ -28,6 +28,15 @@ public interface JpaPriceSnapshotIntervalRepository extends JpaRepository<PriceS
             @Param("atInstant") Instant atInstant
     );
 
+    @Query("SELECT ps FROM PriceSnapshotIntervalEntity ps " +
+            "WHERE ps.skuId IN :skuIds " + //USE IN clause
+            "AND ps.startAtUtc <= :atInstant " +
+            "AND (ps.endAtUtc > :atInstant OR ps.endAtUtc IS NULL)")
+    List<PriceSnapshotIntervalEntity> findByValidPriceListForInstant(
+            @Param("skuIds") List<String> skuIds,
+            @Param("atInstant") Instant atInstant
+    );
+
     /**
      * Find overlapping price snapshots based on multiple attributes of the PriceKey.
      */

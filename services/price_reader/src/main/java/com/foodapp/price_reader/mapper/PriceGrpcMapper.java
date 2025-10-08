@@ -1,6 +1,7 @@
 package com.foodapp.price_reader.mapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.foodapp.contracts.price_reader.v1.PriceListResponse;
 import com.foodapp.contracts.price_reader.v1.PriceResponse;
 import com.foodapp.contracts.price_reader.v1.TimelineResponse;
 import com.foodapp.price_reader.domain.models.PriceInterval;
@@ -9,10 +10,18 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 public class PriceGrpcMapper {
+
+    private static final String STATUS_SUCCESS = "SUCCESS";
+    private static final String STATUS_NOT_FOUND = "NOT_FOUND";
+    private static final double DEFAULT_MISSING_PRICE = -1.0;
+    private static final String EMPTY_CURRENCY = "";
+
 
     public PriceGrpcMapper() {
     }
@@ -22,6 +31,7 @@ public class PriceGrpcMapper {
         int regularPrice = getRegularPriceFromComponent(domain.priceComponent());
         return PriceResponse.newBuilder()
                 .setSkuId(domain.key().skuId())
+                .setStatus(STATUS_SUCCESS)
                 .setCurrency(domain.currency())
                 .setEffectivePriceCent(domain.effectivePriceCent())
                 .setRegularPriceCent(regularPrice)
@@ -43,6 +53,21 @@ public class PriceGrpcMapper {
         }
 
         return builder.build();
+    }
+
+    public PriceListResponse mapToProto(Map<String, Optional<PriceInterval>> domains) {
+        PriceListResponse.Builder responseBuilder = PriceListResponse.newBuilder();
+        if (domains == null || domains.isEmpty()) {
+            return responseBuilder.build();
+        }
+
+        List<PriceResponse> responses = domains.entrySet().stream()
+                .map(this::mapToPriceResponse)
+                .collect(Collectors.toList());
+
+        return PriceListResponse.newBuilder()
+                .addAllPriceResponses(responses)
+                .build();
     }
 
     public TimelineResponse toTimelineResponseProto(
@@ -86,6 +111,22 @@ public class PriceGrpcMapper {
         return Timestamp.newBuilder()
                 .setSeconds(instant.getEpochSecond())
                 .setNanos(instant.getNano())
+                .build();
+    }
+
+    private PriceResponse mapToPriceResponse(Map.Entry<String, Optional<PriceInterval>> entry) { // Map.entry refers to an element in map
+        return entry.getValue()
+                .map(this::toProto)
+                .orElse(createNotFoundResponse(entry.getKey()));
+    }
+
+    private PriceResponse createNotFoundResponse(String skuId) {
+        return PriceResponse.newBuilder()
+                .setSkuId(skuId)
+                .setStatus(STATUS_NOT_FOUND)
+                .setCurrency(EMPTY_CURRENCY)
+                .setEffectivePriceCent(DEFAULT_MISSING_PRICE)
+                .setRegularPriceCent(DEFAULT_MISSING_PRICE)
                 .build();
     }
 }
