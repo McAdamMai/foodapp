@@ -77,7 +77,7 @@ public class AdminRestfulService {
         return entities.stream().map(mapper::toDomain).toList();
     }
     public void validateBussinessRules(PriceInterval interval) {
-        if (interval.startAtUtc().isAfter(interval.endAtUtc())) {
+        if (interval.endAtUtc()!=null && interval.startAtUtc().isAfter(interval.endAtUtc())) {
             throw new IllegalArgumentException("Start time must be earlier than end time");
         }
         if (interval.effectivePriceCent() > interval.priceComponent().get("regularPrice").asInt()) {

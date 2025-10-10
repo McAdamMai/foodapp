@@ -57,7 +57,7 @@ public record PriceInterval(
     public boolean covers(Instant t){
         // t >= start && (t < before or end is open)
         // time.isAfter(t) means time > t
-        return !startAtUtc.isAfter(t) && endAtUtc.isAfter(t) || isOpenEnded();
+        return !startAtUtc.isAfter(t) && (isOpenEnded()|| endAtUtc.isAfter(t)) ;
     }
 
     public boolean overlaps(Instant from, Instant toExclusive){
