@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/promotion_db
+    username: admin
+    password: promo123!
+    driver-class-name: org.postgresql.Driver
+
+mybatis:
+  type-aliases-package: com.foodapp.promotion_service.domain.model
+  mapper-locations: classpath:mapper
+  configuration:
+    map-underscore-to-camel-case: true
+
+flyway:
+  enabled: true
+  locations: classpath:db/migration
+
+server:
+  port: 8901

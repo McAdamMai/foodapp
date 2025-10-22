@@ -1,0 +1,69 @@
+🧩 Key Components
+1. Promotion Service API (REST / GraphQL / gRPC)
+POST /activities → create draft
+PATCH /activities/:id → update
+POST /activities/:id/approve
+POST /activities/:id/publish
+GET /activities/:id/diff?against=version
+POST /activities/:id/rollback
+Design Tip: Use GraphQL or gRPC if you want strong typing and fine-grained queries; REST works well for simpler operations.
+
+2. Application Logic Layer
+Handles:
+Input validation
+Business rules (e.g., stacking conflicts, overlapping windows)
+Versioning
+Rule hashing for idempotency
+Enrichment (e.g., pre-expansion of scopes in ON_PUBLISH mode)
+Implements draft → approve → publish lifecycle
+3. Database (Versioned, Auditable)
+Use a relational DB like PostgreSQL or CockroachDB.
+
+Key tables:
+activity_def (authoring + metadata)
+activity_scope and activity_scope_member
+day_template
+audit_log (who changed what and when)
+activity_version_history (optional, to track diffs)
+Consider:
+JSONB for payloads and templates
+Row-level security (RLS) for multi-tenant support
+Partitioning by tenant or activity type for performance
+4. Event Publisher
+On publish, emit:
+
+json
+
+{
+  "event": "PromotionChanged",
+  "activity_id": "abc123",
+  "version": 3,
+  "status": "PUBLISHED",
+  "diff_summary": {
+    "keys_added": 200,
+    "keys_removed": 50,
+    ...
+  },
+  "emitted_at": "2025-10-20T12:34:56Z"
+}
+Emit to:
+
+Apache Kafka (recommended for scale)
+Or Amazon EventBridge, Google Pub/Sub, etc.
+
+
+🛠️ Infrastructure Suggestions
+Component	Infra Suggestion
+API	Kubernetes (K8s) deployment with autoscaling
+DB	PostgreSQL with point-in-time recovery and WAL archiving
+Queue/Event Bus	Kafka or cloud-native equivalent
+Cache (optional)	Redis for draft lookups or template previews
+File Store (optional)	S3/GCS for template backups, export
+Monitoring	Prometheus + Grafana, or Datadog
+CI/CD	GitOps or Argo CD for safe, auditable deploys
+
+Notes:
+docker run --name postgres-promotion -e POSTGRES_DB=promotion_db -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=promo123! -p 5432:5432 -d postgres
+docker exec -it postgres-promotion psql -U admin -d promotion_db
+\dt
+SELECT #TABLE;
