@@ -28,6 +28,7 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <flyway.version>10.13.0</flyway.version>
     </properties>
     <dependencies>
         <dependency>
@@ -61,10 +62,10 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <!-- Redis -->
-        <dependency>
+        <!--dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
+        </dependency-->
         <!--provide actuator to monitor app's metrics-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,6 +92,12 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <!-- No need to specify the version here; it's managed by the property above -->
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -167,12 +174,12 @@
             <scope>test</scope>
         </dependency>
         <!-- Testcontainers Redis for integration tests -->
-        <dependency>
+        <!--dependency>
             <groupId>com.redis.testcontainers</groupId>
             <artifactId>testcontainers-redis</artifactId>
             <version>1.6.4</version>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
         <!-- h2 database -->
         <dependency>
             <groupId>com.h2database</groupId>

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class DayTemplate {
-    private UUID id;
+    private String id;
     private String name;
     private String description;
     private String ruleJson;

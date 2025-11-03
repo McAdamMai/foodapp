@@ -1,11 +1,9 @@
 package com.foodapp.promotion_service.domain.model;
 
-import java.util.UUID;
-
-public class ActivityScope {
+public class PromotionScope {
     // to define the scope of new activities(store and product)
-    private UUID scopeId;
-    private UUID activityId;
+    private String scopeId;
+    private String promotionId;
     private String scopeType;
     // Getter and Setter
 }

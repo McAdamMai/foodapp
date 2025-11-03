@@ -28,7 +28,7 @@ activity_version_history (optional, to track diffs)
 Consider:
 JSONB for payloads and templates
 Row-level security (RLS) for multi-tenant support
-Partitioning by tenant or activity type for performance
+Partitioning by tenant or promotion type for performance
 4. Event Publisher
 On publish, emit:
 
