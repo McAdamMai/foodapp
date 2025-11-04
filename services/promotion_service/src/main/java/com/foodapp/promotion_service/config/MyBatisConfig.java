@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("com.foodapp.promotion_service.mapper")
+@MapperScan("com.foodapp.promotion_service.persistence.repository")
 public class MyBatisConfig {
 
     /**

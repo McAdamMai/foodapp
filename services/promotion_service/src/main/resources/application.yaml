@@ -13,7 +13,9 @@ mybatis:
 
 flyway:
   enabled: true
+  baseline-on-migrate: true
   locations: classpath:db/migration
+  validate-on-migrate: false  # Set to false temporarily for repair
 
 server:
   port: 8901
