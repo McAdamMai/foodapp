@@ -2,11 +2,12 @@ package com.foodapp.promotion_service.persistence.repository;
 
 import com.foodapp.promotion_service.persistence.entitty.PromotionEntity;
 
+import java.util.List;
+
 public interface PromotionRepository {
     PromotionEntity findById(String id);
-    /**
-     * Saves a new promotion entity to the database.
-     * Corresponds to an <insert> tag in the XML.
-     */
+
+    List<PromotionEntity> findAll();
+
     void save(PromotionEntity entity);
 }

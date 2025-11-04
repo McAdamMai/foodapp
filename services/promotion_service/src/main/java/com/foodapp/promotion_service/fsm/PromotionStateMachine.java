@@ -3,9 +3,11 @@ package com.foodapp.promotion_service.fsm;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class PromotionStateMachine {
     private final List<Transition> transitions = List.of(
             new Transition(PromotionStatus.DRAFT, PromotionEvent.EDIT, PromotionStatus.DRAFT, UserRole.CREATOR),

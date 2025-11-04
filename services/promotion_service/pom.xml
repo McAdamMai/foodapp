@@ -193,29 +193,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>10.13.0</version>
-                <configuration>
-                    <!-- Direct configuration (no configFiles) -->
-                    <url>jdbc:postgresql://localhost:5432/promotion_db</url>
-                    <user>admin</user>
-                    <password>promo123!</password>
-                    <locations>
-                        <location>filesystem:src/main/resources/db/migration</location>
-                    </locations>
-                    <baselineOnMigrate>true</baselineOnMigrate>
-                </configuration>
-                <dependencies>
-                    <!-- PostgreSQL Driver -->
-                    <dependency>
-                        <groupId>org.postgresql</groupId>
-                        <artifactId>postgresql</artifactId>
-                        <version>42.7.3</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
         </plugins>
 
     </build>

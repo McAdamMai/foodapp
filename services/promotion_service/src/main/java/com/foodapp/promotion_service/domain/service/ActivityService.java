@@ -10,12 +10,14 @@ import com.foodapp.promotion_service.fsm.UserRole;
 import com.foodapp.promotion_service.persistence.entitty.PromotionEntity;
 import com.foodapp.promotion_service.persistence.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 @RequiredArgsConstructor
 public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
@@ -103,6 +105,20 @@ public class ActivityService {
     public List<PromotionEvent> getAvailableActions(UUID id, UserRole role){
         PromotionStatus currentStatus = loadDomain(id).getStatus();
         return promotionStateMachine.getAvailableEvent(currentStatus, role);
+    }
+
+    /**
+     * Gets all promotions for a promotion based on user role.
+     */
+    public List<PromotionDomain> findAll(){
+        return promotionRepository.findAll()
+                .stream()
+                .map(PromotionMapper::toDomain)
+                .toList();
+    }
+
+    public PromotionDomain findById(UUID id){
+        return loadDomain(id);
     }
 
     // ========== PRIVATE HELPER ==========

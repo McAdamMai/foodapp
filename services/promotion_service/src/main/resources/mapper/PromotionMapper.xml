@@ -32,6 +32,12 @@
         SELECT * FROM promotion WHERE id = #{id}
     </select>
 
+    <!-- Implementation for the findByAll() method -->
+    <select id="findByAll"
+            resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
+        SELECT * FROM promotion
+    </select>
+
     <!-- Implementation for the findAll() method >
     <select id="findAll" resultMap="PromotionResultMap">
         SELECT * FROM promotions ORDER BY created_at DESC

@@ -43,4 +43,5 @@ public class PromotionMapper {
                 .templateId(entity.getTemplateId())
                 .build();
     }
+
 }
