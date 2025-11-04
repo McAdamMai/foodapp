@@ -1,26 +1,35 @@
 package com.foodapp.promotion_service.config;
 
-<<<<<<< HEAD
-import org.springframework.context.annotation.Configuration;
+import org.apache.ibatis.type.JdbcType;
 import org.mybatis.spring.annotation.MapperScan;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @MapperScan("com.foodapp.promotion_service.mapper")
 public class MyBatisConfig {
-=======
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.type.JdbcType;
-import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.mybatis.spring.annotation.MapperScan;
 
+    /**
+     * Customizes MyBatis configuration.
+     * - Handles NULL values properly
+     * - Enables underscore-to-camelCase mapping
+     */
+    @Bean
+    public ConfigurationCustomizer mybatisConfigurationCustomizer() {
+        return configuration -> {
+            // Set JDBC type for NULL values to avoid Oracle/PostgreSQL issues
+            configuration.setJdbcTypeForNull(JdbcType.NULL);
 
-import java.util.UUID;
+            // Enable automatic mapping from snake_case (DB) to camelCase (Java)
+            configuration.setMapUnderscoreToCamelCase(true);
 
-@Configuration
-@MapperScan(basePackages = "com.foodapp.promotion_service.mapper", sqlSessionFactoryRef = "sqlSessionFactory")
-public class MyBatisConfig {
+            // Enable lazy loading (optional, based on your needs)
+            configuration.setLazyLoadingEnabled(false);
+            configuration.setAggressiveLazyLoading(false);
 
->>>>>>> 0ad118a (new service: promotion infra)
+            // Log SQL statements (useful for development)
+            // configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
+        };
+    }
 }
