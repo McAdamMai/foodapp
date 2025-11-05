@@ -1,6 +1,5 @@
 package com.foodapp.price_reader.adapters.api.controller;
 
-
 import com.foodapp.price_reader.adapters.api.dto.PriceIntervalDto;
 import com.foodapp.price_reader.domain.models.PriceInterval;
 import com.foodapp.price_reader.domain.models.PriceKey;
@@ -85,6 +84,34 @@ public class PriceReaderRestController {
    public ResponseEntity<String> updatePrice(@PathVariable String id,@RequestBody PriceIntervalDto dto){
         restService.updateInterval(id, dto);
         return ResponseEntity.ok("Price interval updated successfully");
+   }
+
+   @GetMapping("/{skuId}/history")
+   public ResponseEntity<List<PriceIntervalDto>> getPriceHistory(@PathVariable String skuId){
+        List<PriceIntervalDto> history = restService.getPriceHistory(skuId).stream()
+                .map(dtoMapper::toDto)
+                .toList();
+
+        if (history.isEmpty()) {
+            return  ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(history);
+   }
+
+   @GetMapping("/range")
+    public  ResponseEntity<List<PriceIntervalDto>> getPricesInRange(
+            @RequestParam int min,
+            @RequestParam int max
+   ){
+        List<PriceIntervalDto> prices = restService.getPricesInRange(min, max).stream()
+                .map(dtoMapper::toDto)
+                .toList();
+
+        if (prices.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(prices);
+
    }
 
 

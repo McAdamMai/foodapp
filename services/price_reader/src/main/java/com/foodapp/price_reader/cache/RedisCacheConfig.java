@@ -35,7 +35,7 @@ public class RedisCacheConfig { // a class contain RedisCacheConfiguration and R
                 .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
     }
 
-    @Bean
+     @Bean
     public RedisCacheConfiguration baseRedisCacheConfiguration( // create a foundation configuration that will be used in all caches
             @Value("${app.cache.redis.cacheNullValue:false}") boolean cacheNullValue, //
             @Value("${app.cache.redis.keyPrefix}") String keyPrefix

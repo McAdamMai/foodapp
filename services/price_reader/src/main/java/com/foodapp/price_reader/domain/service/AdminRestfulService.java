@@ -119,6 +119,21 @@ public class AdminRestfulService {
 
     }
 
+    public List<PriceInterval> getPriceHistory(String skuId){
+        List<PriceSnapshotIntervalEntity> entities = intervalRepo.findBySkuIdOrderByStartAtUtcAsc(skuId);
+        return entities.stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    public  List<PriceInterval> getPricesInRange(int minPrice, int maxPrice){
+        List<PriceSnapshotIntervalEntity> entities =
+                intervalRepo.findByEffectivePriceCentsBetween(minPrice, maxPrice);
+        return entities.stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
 
 
 

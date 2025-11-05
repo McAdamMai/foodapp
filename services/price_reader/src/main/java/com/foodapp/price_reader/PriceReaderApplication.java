@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(
 		exclude = {
 				net.devh.boot.grpc.server.autoconfigure.GrpcServerSecurityAutoConfiguration.class,
-				net.devh.boot.grpc.server.autoconfigure.GrpcServerFactoryAutoConfiguration.class
+
 		}
 )
 public class PriceReaderApplication {

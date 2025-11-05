@@ -12,8 +12,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +49,39 @@ public class TimelineService {
         // using composite key to lookup data
         List<PriceSnapshotIntervalEntity> entities = repo.findOverlapping(key, from, to, clampedLimit);
         return entities.stream().map(mapper::toDomain).toList();
+    }
+
+    @Cacheable(
+            value = RedisCacheConfig.TIMELINE_CACHE,
+            key = "'batch::' + #keys.hashCode() + '::' + #from.toEpochMilli() + '::' + #to.toEpochMilli() + '::' + #limit"
+    )
+    public Map<PriceKey, List<PriceInterval>> getTimelinesBatch(
+            List<PriceKey> keys,
+            Instant from,
+            Instant to,
+            int limit
+    ){
+        Objects.requireNonNull(keys,"keys must not be null");
+        Objects.requireNonNull(from);
+        Objects.requireNonNull(to);
+
+        if (keys.isEmpty()){
+            return Collections.emptyMap();
+        }
+
+        if (!from.isBefore(to)){
+            throw new IllegalArgumentException("from must before to");
+        }
+
+        int clampedLimit = Math.min(Math.max(MIN_LIMIT, limit), MAX_LIMIT);
+
+        //Searching the timeline for every key
+        Map<PriceKey, List<PriceInterval>> result = new HashMap<>();
+        for (PriceKey key : keys){
+            List<PriceSnapshotIntervalEntity> entities = repo.findOverlapping(key,from, to, clampedLimit);
+            List<PriceInterval> intervals = entities.stream().map(mapper::toDomain).collect(Collectors.toList());
+            result.put(key, intervals);
+        }
+        return result;
     }
 }

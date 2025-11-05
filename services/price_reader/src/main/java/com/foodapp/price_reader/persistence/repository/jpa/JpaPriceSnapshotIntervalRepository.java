@@ -82,6 +82,9 @@ public interface JpaPriceSnapshotIntervalRepository extends JpaRepository<PriceS
             @Param("provenanceJson") String provenanceJson
     );
 
+    List<PriceSnapshotIntervalEntity> findBySkuIdOrderByStartAtUtcAsc(String skuId);
+    List<PriceSnapshotIntervalEntity> findByEffectivePriceCentsBetween(int minPrice, int maxPrice);
+
 
 
 }

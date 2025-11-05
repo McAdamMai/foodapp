@@ -49,5 +49,16 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key) // Secretkey
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String getRole(String token) {
+        return getClaims(token).get("role", String.class);
+    }
 
 }

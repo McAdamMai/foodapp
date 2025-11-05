@@ -39,6 +39,13 @@ public class PriceQueryService {
                 .map(domainMapper::toDomain);
     }
 
+    @Cacheable(
+            value = RedisCacheConfig.PRICE_CACHE,
+            key = "'batch_'+ #skuIDs.hashCode() + '::' + #at.toEpochMilli()",
+            unless = "#result ==null || #result.isEmpty()"
+
+    )
+
     public Map<String, Optional<PriceInterval>> getPrices(List<String> skuIDs, Instant at) {
         return repoList.getSnapshotPriceList(skuIDs, at);
     }
