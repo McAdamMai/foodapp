@@ -93,6 +93,7 @@ public class AdminRestfulService {
         }
     }
 
+    @Transactional
     public void deleteBySkuId(String skuId){
         intervalRepo.deleteBySkuId(skuId);
     }

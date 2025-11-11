@@ -114,5 +114,39 @@ public class PriceReaderRestController {
 
    }
 
+    @GetMapping("/lookup")
+    public ResponseEntity<?> lookupPrice(
+            @RequestParam String skuId,
+            @RequestParam(required = false) String at
+    ) {
+        // ✅ Condition 1: Input with timestamp, search price in the indicated time range
+        if (at != null && !at.isBlank()) {
+            Instant atInstant;
+            try {
+                atInstant = Instant.parse(at);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Invalid 'at' timestamp format");
+            }
+
+            return restService.findPrice(skuId, atInstant)
+                    .map(dtoMapper::toDto)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+
+        }
+
+        // ✅ conditon2: input has no timestamp, return all price history
+        List<PriceIntervalDto> history = restService.getPriceHistory(skuId).stream()
+                .map(dtoMapper::toDto)
+                .toList();
+
+        if (history.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No price history found");
+        }
+
+        return ResponseEntity.ok(history);
+    }
+
+
 
 }
