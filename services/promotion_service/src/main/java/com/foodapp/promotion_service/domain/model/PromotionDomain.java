@@ -23,6 +23,7 @@ public class PromotionDomain {
     private LocalDate endDate;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
+    // Optimistic lock field
     private int version;
     private String createdBy;
     private String reviewedBy;
@@ -95,5 +96,15 @@ public class PromotionDomain {
         }
         this.status = PromotionStatus.SUBMITTED;
         this.updateAt = LocalDateTime.now();
+    }
+
+    public void validateCanBeEdited(String UpdatedBy){
+        if (this.status != PromotionStatus.DRAFT &&
+        this.status != PromotionStatus.REJECTED) {
+            throw new IllegalStateException("Only DRAFT or REJECTED promotions can be edited");
+        }
+        if (!this.createdBy.equals(UpdatedBy)) {
+            throw new IllegalStateException("Only the creator can edit this promotion");
+        }
     }
 }

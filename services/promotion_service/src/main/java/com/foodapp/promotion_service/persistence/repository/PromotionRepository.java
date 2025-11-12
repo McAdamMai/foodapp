@@ -12,4 +12,6 @@ public interface PromotionRepository {
     List<PromotionEntity> findAll();
 
     void save(PromotionEntity entity);
+
+    int updatePromotionDetails(PromotionEntity entity);
 }

@@ -1,5 +1,7 @@
 package com.foodapp.promotion_service.domain.service;
 
+import com.foodapp.promotion_service.api.controller.dto.request.PromotionUpdateRequest;
+import com.foodapp.promotion_service.domain.exception.OptimisticLockException;
 import com.foodapp.promotion_service.domain.mapper.PromotionMapper;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.fsm.PromotionEvent;
@@ -10,6 +12,7 @@ import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
 import com.foodapp.promotion_service.persistence.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -70,6 +73,30 @@ public class ActivityService {
             throw new IllegalStateException("Only the creator can submit this promotion");
         }
         return executeTransition(id, PromotionEvent.EDIT, UserRole.CREATOR, editedBy);
+    }
+
+    @Transactional
+    public PromotionDomain updateDetails(PromotionUpdateRequest request){
+        // validation: must have something to update
+        if (!request.hasUpdates()){
+            throw new IllegalArgumentException("No fields to update");
+        }
+
+        // validation: update must be operated by creators
+        PromotionDomain domain = loadDomain(request.getId());
+        domain.validateCanBeEdited(request.getUpdatedBy());
+
+        // Build update entity
+        PromotionEntity updateEntity = buildUpdateEntity(request, domain.getVersion());
+
+        // Execute update with optimistic locking
+        int rowAffected = promotionRepository.updatePromotionDetails(updateEntity);
+
+        if (rowAffected == 0) {
+            throw new OptimisticLockException("Promotion was modified by another user or is not editable");
+        }
+
+        return loadDomain(request.getId());
     }
 
     public PromotionDomain approve(UUID id, String reviewedBy){
@@ -143,5 +170,33 @@ public class ActivityService {
         return PromotionMapper.toDomain(
                 promotionRepository.findById(id.toString())
         );
+    }
+
+    private PromotionEntity buildUpdateEntity (
+            PromotionUpdateRequest request,
+            Integer currentVersion
+    ) {
+        PromotionEntity.PromotionEntityBuilder builder = PromotionEntity.builder()
+                .id(request.getId().toString())
+                .version(currentVersion);
+
+        // set only non-null fields
+        if (request.getName() != null) {
+            builder.name(request.getName());
+        }
+        if (request.getDescription() != null) {
+            builder.description(request.getDescription());
+        }
+        if (request.getStartDate() != null) {
+            builder.startDate(request.getStartDate());
+        }
+        if (request.getEndDate() != null) {
+            builder.endDate(request.getEndDate());
+        }
+        if (request.getTemplateId() != null) {
+            builder.templateId(request.getTemplateId());
+        }
+
+        return builder.build();
     }
 }

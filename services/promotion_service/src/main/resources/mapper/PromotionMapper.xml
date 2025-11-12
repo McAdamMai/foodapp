@@ -27,6 +27,22 @@
         VALUES (#{id}, #{name}, #{description}, #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, #{startDate}, #{endDate}, #{createdAt}, #{updatedAt}, #{version}, #{createdBy}, #{reviewedBy}, #{publishBy}, #{templateId})
     </insert>
 
+    <!-- Implementation for the update with optimistic lock-->
+    <update id="updatePromotionDetails" parameterType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
+        UPDATE promotion
+        <set>
+            <if test="name !=null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="startDate != null">description = #{description},</if>
+            <if test="endDate != null">description = #{description},</if>
+            <if test="templateId != null">description = #{description},</if>
+            updated_at = NOW(),
+            version = version + 1
+        </set>
+        WHERE id = #{id}
+            AND version = #{version}
+            AND status IN ('DRAFT', 'REJECTED')  <!-- Only editable states -->
+    </update>
     <!-- Implementation for the findById() method -->
     <select id="findById" parameterType="string" resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
         SELECT * FROM promotion WHERE id = #{id}

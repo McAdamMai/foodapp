@@ -27,9 +27,23 @@ public class PromotionEntity {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 
+    // Optimistic lock field
     private int version;
+
     private String createdBy;
     private String reviewedBy;
     private String publishedBy;
     private String templateId;
+
+    /**
+     * Factory method for creating partial update entities.
+     * Only sets id and version, other fields can be set via setters.
+     */
+    @Deprecated
+    public static PromotionEntity forUpdate(String id, Integer version) {
+        PromotionEntity entity = new PromotionEntity();
+        entity.id = id;
+        entity.version = version;
+        return entity;
+    }
 }
