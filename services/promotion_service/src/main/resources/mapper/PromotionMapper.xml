@@ -5,7 +5,7 @@
 <mapper namespace="com.foodapp.promotion_service.persistence.repository.PromotionRepository">
 
     <!-- Define a reusable result map to map table columns to entity fields -->
-    <resultMap id="PromotionResultMap" type="com.foodapp.promotion_service.persistence.entitty.PromotionEntity">
+    <resultMap id="PromotionResultMap" type="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
@@ -22,42 +22,19 @@
     </resultMap>
 
     <!-- Implementation for the save() method -->
-    <insert id="save" parameterType="com.foodapp.promotion_service.persistence.entitty.PromotionEntity">
+    <insert id="save" parameterType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
         INSERT INTO promotion (id, name, description, status, start_date, end_date, created_at, updated_at, version, createdBy, reviewedBy, publishedBy, templateId)
         VALUES (#{id}, #{name}, #{description}, #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, #{startDate}, #{endDate}, #{createdAt}, #{updatedAt}, #{version}, #{createdBy}, #{reviewedBy}, #{publishBy}, #{templateId})
     </insert>
 
     <!-- Implementation for the findById() method -->
-    <select id="findById" parameterType="string" resultType="com.foodapp.promotion_service.persistence.entitty.PromotionEntity">
+    <select id="findById" parameterType="string" resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
         SELECT * FROM promotion WHERE id = #{id}
     </select>
 
     <!-- Implementation for the findByAll() method -->
-    <select id="findByAll"
-            resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
-        SELECT * FROM promotion
+    <select id="findByAll" resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
+        SELECT * FROM promotion ORDER BY created_at DESC
     </select>
-
-    <!-- Implementation for the findAll() method >
-    <select id="findAll" resultMap="PromotionResultMap">
-        SELECT * FROM promotions ORDER BY created_at DESC
-    </select-->
-
-    <!-- Implementation for the update() method with optimistic locking >
-    <update id="update" parameterType="com.foodapp.promotion_service.persistence.entitty.PromotionEntity">
-        UPDATE promotions
-        SET
-            name = #{name},
-            description = #{description},
-            status = #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
-            start_date = #{startDate},
-            end_date = #{endDate},
-            update_at = #{updateAt},
-            reviewed_by = #{reviewedBy},
-            published_by = #{publishedBy},
-            version = version + 1
-        WHERE
-            id = #{id} AND version = #{version}
-    </update-->
 
 </mapper>

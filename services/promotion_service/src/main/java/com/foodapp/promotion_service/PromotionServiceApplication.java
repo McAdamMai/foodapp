@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.foodapp.promotion_service.mapper")
+@MapperScan("com.foodapp.promotion_service.persistence.repository")
 public class PromotionServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(PromotionServiceApplication.class, args);

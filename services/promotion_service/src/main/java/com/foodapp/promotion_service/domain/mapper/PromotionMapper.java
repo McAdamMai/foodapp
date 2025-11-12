@@ -1,7 +1,7 @@
 package com.foodapp.promotion_service.domain.mapper;
 
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
-import com.foodapp.promotion_service.persistence.entitty.PromotionEntity;
+import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
 
 import java.util.UUID;
 

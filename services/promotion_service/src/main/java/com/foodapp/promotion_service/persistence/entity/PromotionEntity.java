@@ -1,4 +1,4 @@
-package com.foodapp.promotion_service.persistence.entitty;
+package com.foodapp.promotion_service.persistence.entity;
 
 import com.foodapp.promotion_service.fsm.PromotionStatus;
 import lombok.*;

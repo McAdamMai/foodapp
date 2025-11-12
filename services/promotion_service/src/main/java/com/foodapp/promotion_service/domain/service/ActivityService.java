@@ -2,18 +2,16 @@ package com.foodapp.promotion_service.domain.service;
 
 import com.foodapp.promotion_service.domain.mapper.PromotionMapper;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
-import com.foodapp.promotion_service.domain.model.enums.ReviewDecision;
 import com.foodapp.promotion_service.fsm.PromotionEvent;
 import com.foodapp.promotion_service.fsm.PromotionStateMachine;
 import com.foodapp.promotion_service.fsm.PromotionStatus;
 import com.foodapp.promotion_service.fsm.UserRole;
-import com.foodapp.promotion_service.persistence.entitty.PromotionEntity;
+import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
 import com.foodapp.promotion_service.persistence.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
