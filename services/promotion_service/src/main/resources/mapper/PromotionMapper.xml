@@ -43,6 +43,22 @@
             AND version = #{version}
             AND status IN ('DRAFT', 'REJECTED')  <!-- Only editable states -->
     </update>
+
+    <!--  NEW: Transactional state transition with optimistic locking -->
+    <update id="updateStateTransition">
+        UPDATE promotion
+        <set>
+            status = #{status},
+            <if test="reviewedBy != null">reviewed_by = #{reviewedBy},</if>
+            <if test="publishedBy != null">published_by = #{publishedBy},</if>
+            updated_at = NOW(),
+            version = version + 1
+        </set>
+        WHERE id = #{id}
+        AND version = #{version}
+        AND status = #{expectedStatus}
+    </update>
+
     <!-- Implementation for the findById() method -->
     <select id="findById" parameterType="string" resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
         SELECT * FROM promotion WHERE id = #{id}

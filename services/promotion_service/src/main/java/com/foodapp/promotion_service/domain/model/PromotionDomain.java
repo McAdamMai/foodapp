@@ -69,33 +69,28 @@ public class PromotionDomain {
      */
 
     public PromotionDomain applyTransition(TransitionResult transitionResult) {
-        PromotionDomainBuilder builder = PromotionDomain.builder()
+        PromotionDomainBuilder builder = this.toBuilder()
                 .status(transitionResult.getNewStatus())
-                .updateAt(LocalDateTime.now())
-                .version(this.version + 1); // why?
+                .updateAt(LocalDateTime.now());
 
-        // Set actor filer based on event type
+        // ✅ Clean, safe, modern
         switch (transitionResult.getEvent()) {
-            case APPROVE:
-            case REJECT:
-                builder.reviewedBy(transitionResult.getActor());
-                break;
-            case PUBLISH:
-                builder.publishedBy(transitionResult.getActor());
-                break;
-            default:
-                // SUBMIT, EDIT, ROLLBACK don't set specific actor fields
-                break;
+            case APPROVE, REJECT -> builder.reviewedBy(transitionResult.getActor());
+            case PUBLISH -> builder.publishedBy(transitionResult.getActor());
+            case SUBMIT, ROLLBACK -> { /* No actor updates */ }
         }
+
         return builder.build();
     }
+
     // === SUBMIT ====
-    public void submitForReview() {
+    public void validateCanBeSubmitted(String submittedBy) {
         if (this.status != PromotionStatus.DRAFT) {
             throw new IllegalStateException("Can only submit DRAFT promotion, Current: +" + this.status);
         }
-        this.status = PromotionStatus.SUBMITTED;
-        this.updateAt = LocalDateTime.now();
+        if (!this.createdBy.equals(submittedBy)) {
+            throw new IllegalStateException("Only the creator can submit this promotion");
+        }
     }
 
     public void validateCanBeEdited(String UpdatedBy){

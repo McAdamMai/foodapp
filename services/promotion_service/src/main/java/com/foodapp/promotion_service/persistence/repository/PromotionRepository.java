@@ -1,7 +1,9 @@
 package com.foodapp.promotion_service.persistence.repository;
 
+import com.foodapp.promotion_service.fsm.PromotionStatus;
 import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,4 +16,13 @@ public interface PromotionRepository {
     void save(PromotionEntity entity);
 
     int updatePromotionDetails(PromotionEntity entity);
+
+    int updateStateTransaction(
+            @Param("id") String id,
+            @Param("status") PromotionStatus status,
+            @Param("expectedStatus") PromotionStatus expectedStatus,
+            @Param("version") Integer version,
+            @Param("reviewedBy") String reviewedBy,
+            @Param("publishedBy") String publishedBy
+    );
 }

@@ -24,6 +24,7 @@ public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
     private final PromotionRepository promotionRepository;
 
+    @Transactional
     public PromotionDomain create(
             String name,
             String description,
@@ -32,6 +33,7 @@ public class ActivityService {
             String createdBy,
             String temPlateId
     ){
+        // add log for "log.info("Creating new promotion: name={}, createdBy={}", name, createdBy)"
         PromotionDomain newPromotion = PromotionDomain.createNew(
                 name, description, startDate, endDate, createdBy, temPlateId);
         // no mappers are required because toEntity is set static (stateless)
@@ -39,40 +41,9 @@ public class ActivityService {
         // instance belong to each object
         PromotionEntity entityToSave = PromotionMapper.toEntity(newPromotion);
         promotionRepository.save(entityToSave);
+
+        // add log for "log.info("Promotion created successfully: id={}", newPromotion.getId());"
         return newPromotion;
-    }
-
-    /**
-     * Submits a promotion for review.
-     */
-    public PromotionDomain submit(UUID id, String submittedBy){
-        PromotionDomain domain = loadDomain(id);
-        if(!domain.getCreatedBy().equals(submittedBy)) {
-            throw new IllegalStateException("Only the creator can submit this promotion");
-        }
-        // actor will not be checked in SUBMIT
-        // Validate transition through state machine
-        PromotionStateMachine.TransitionResult result = promotionStateMachine.validateTransition(domain, PromotionEvent.SUBMIT, UserRole.CREATOR, submittedBy);
-
-        // apply transition to get new domain
-        PromotionDomain updateDomain = domain.applyTransition(result);
-
-        // save and return
-        promotionRepository.save(PromotionMapper.toEntity(domain));
-        return updateDomain;
-    }
-
-    /**
-     * Edits a rejected promotion back to draft.
-     */
-    public PromotionDomain edit(UUID id, String editedBy){
-        String createdBy = loadDomain(id).getCreatedBy();
-
-        // Verify editor is the creator
-        if (!createdBy.equals(editedBy)) {
-            throw new IllegalStateException("Only the creator can submit this promotion");
-        }
-        return executeTransition(id, PromotionEvent.EDIT, UserRole.CREATOR, editedBy);
     }
 
     @Transactional
@@ -82,48 +53,96 @@ public class ActivityService {
             throw new IllegalArgumentException("No fields to update");
         }
 
-        // validation: update must be operated by creators
+        // 1. Load current state
         PromotionDomain domain = loadDomain(request.getId());
+
+        // 2. Validate (read-only)
         domain.validateCanBeEdited(request.getUpdatedBy());
 
-        // Build update entity
+        // 3. Build update entity with CURRENT version
         PromotionEntity updateEntity = buildUpdateEntity(request, domain.getVersion());
 
-        // Execute update with optimistic locking
+        // 4. Execute atomic update with optimistic locking
         int rowAffected = promotionRepository.updatePromotionDetails(updateEntity);
 
+        // 5. Handle optimistic lock conflict
         if (rowAffected == 0) {
             throw new OptimisticLockException("Promotion was modified by another user or is not editable");
         }
 
+        // 6. Reload and return updated state
         return loadDomain(request.getId());
     }
 
-    public PromotionDomain approve(UUID id, String reviewedBy){
-        return executeTransition(id, PromotionEvent.APPROVE, UserRole.REVIEWER, reviewedBy);
+    /**
+     * Submits a promotion for review.
+     */
+    @Transactional
+    public PromotionDomain submit(UUID id, String submittedBy){
+
+        // 1. load current state
+        PromotionDomain currentDomain = loadDomain(id);
+
+        // 2. validate business rules (read-only, doesn't modify state)
+        currentDomain.validateCanBeEdited(submittedBy);
+        // 3. Execute transactional state transition
+        return executeTransition(
+          currentDomain,
+          PromotionEvent.SUBMIT,
+          UserRole.CREATOR,
+          submittedBy
+        );
     }
 
+    /**
+     * approve a promotion for review.
+     */
+    @Transactional
+    public PromotionDomain approve(UUID id, String reviewedBy){
+       // add log log.info("Approving promotion: id={}, reviewedBy={}", id, reviewedBy);
+
+        return executeTransition(
+            loadDomain(id),
+            PromotionEvent.APPROVE,
+            UserRole.REVIEWER,
+            reviewedBy
+        );
+    }
+
+    /**
+     * reject a promotion for review.
+     */
+    @Transactional
     public PromotionDomain reject(UUID id, String reviewedBy){
-        return executeTransition(id, PromotionEvent.REJECT, UserRole.REVIEWER, reviewedBy);
+        // add log log.info("Rejecting promotion: id={}, reviewedBy={}", id, reviewedBy);
+
+        return executeTransition(
+                loadDomain(id),
+                PromotionEvent.REJECT,
+                UserRole.REVIEWER,
+                reviewedBy
+        );
     }
 
     /**
      * Publishes an approved promotion.
      */
+    @Transactional
     public PromotionDomain publish(UUID id, String publishedBy){
-        return executeTransition(id, PromotionEvent.PUBLISH, UserRole.PUBLISHER, publishedBy);
+        // Paul to do
+        return PromotionDomain.builder().build();
     }
 
     /**
      * Rolls back a published promotion.
      */
+    @Transactional
     public PromotionDomain rollBack(UUID id, String rollBackedBy, UserRole role){
-        if (role != UserRole.ADMIN && role != UserRole.PUBLISHER) {
-            throw new IllegalStateException("Only the admin and the publisher can roll back this promotion");
-        }
-        return executeTransition(id, PromotionEvent.PUBLISH, role, rollBackedBy);
+        // Paul to do
+        return PromotionDomain.builder().build();
     }
 
+    // ========== QUERIES ==========
     /**
      * Gets available actions for a promotion based on user role.
      */
@@ -146,24 +165,54 @@ public class ActivityService {
         return loadDomain(id);
     }
 
-    // ========== PRIVATE HELPER ==========
+    // ========== PRIVATE HELPERS ==========
 
     /**
-     * Common method to execute any state transition.
+     *  CORE TRANSACTIONAL METHOD: Executes state transition atomically
+     *
+     * Flow:
+     * 1. Validate transition through FSM (in-memory, safe)
+     * 2. Create new domain with new state (immutable, safe)
+     * 3. Update DB with optimistic locking (atomic, transactional)
+     * 4. If DB update fails → transaction rolls back automatically
+     * 5. If DB update succeeds → reload and return new state
      */
 
-    private PromotionDomain executeTransition(UUID id, PromotionEvent event, UserRole userRole, String actor){
-        PromotionDomain domain = loadDomain(id);
 
-        // Validate transition
-        PromotionStateMachine.TransitionResult result = promotionStateMachine.validateTransition(domain, event, userRole, actor);
+    private PromotionDomain executeTransition(
+            PromotionDomain currentDomain,
+            PromotionEvent event,
+            UserRole userRole,
+            String actor){
+        // 1. validate transaction through FSM (just for verification, will not modify anything)
+        PromotionStateMachine.TransitionResult result = promotionStateMachine.validateTransition(
+                currentDomain, event, userRole, actor
+        );
 
-        // apply transition to get the new domain
-        PromotionDomain updateDomain = domain.applyTransition(result);
+        // 2. Create a new domain state (immutable doesn't modify currentDomain)
+        PromotionDomain updatedDomain  = currentDomain.applyTransition(result);
 
-        // save and return
-        promotionRepository.save(PromotionMapper.toEntity(updateDomain));
-        return updateDomain;
+        // 3. Execute atomic DB update with optimistic locking
+        int rowsAffected = promotionRepository.updateStateTransaction(
+                currentDomain.getId().toString(),
+                updatedDomain.getStatus(),
+                currentDomain.getStatus(),
+                currentDomain.getVersion(),
+                updatedDomain.getReviewedBy(),
+                updatedDomain.getPublishedBy()
+        );
+
+        // 4. Handle optimistic lock conflict
+        if (rowsAffected == 0) {
+            throw new OptimisticLockException(
+                    "Promotion",
+                    currentDomain.getId().toString(),
+                    currentDomain.getVersion()
+            );
+        }
+
+        // 5. Reload from DB to get the latest state (including new version)
+        return loadDomain(currentDomain.getId());
     }
 
     private PromotionDomain loadDomain(UUID id) {
