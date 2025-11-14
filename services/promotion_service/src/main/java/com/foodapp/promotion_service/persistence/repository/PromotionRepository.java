@@ -17,7 +17,7 @@ public interface PromotionRepository {
 
     int updatePromotionDetails(PromotionEntity entity);
 
-    int updateStateTransaction(
+    int updateStateTransition(
             @Param("id") String id,
             @Param("status") PromotionStatus status,
             @Param("expectedStatus") PromotionStatus expectedStatus,

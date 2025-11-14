@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- The namespace must match the fully qualified name of your repository interface -->
 <mapper namespace="com.foodapp.promotion_service.persistence.repository.PromotionRepository">
 
-    <!-- Define a reusable result map to map table columns to entity fields -->
-    <resultMap id="PromotionResultMap" type="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
+    <!-- ResultMap -->
+    <resultMap id="PromotionResultMap"
+               type="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
-        <result property="status" column="status" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result property="status" column="status"
+                typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date"/>
         <result property="createAt" column="created_at"/>
@@ -21,30 +23,51 @@
         <result property="templateId" column="template_id"/>
     </resultMap>
 
-    <!-- Implementation for the save() method -->
-    <insert id="save" parameterType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
-        INSERT INTO promotion (id, name, description, status, start_date, end_date, created_at, updated_at, version, createdBy, reviewedBy, publishedBy, templateId)
-        VALUES (#{id}, #{name}, #{description}, #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler}, #{startDate}, #{endDate}, #{createdAt}, #{updatedAt}, #{version}, #{createdBy}, #{reviewedBy}, #{publishBy}, #{templateId})
+    <!-- SAVE -->
+    <insert id="save">
+        INSERT INTO promotion (
+            id, name, description, status,
+            start_date, end_date,
+            created_at, updated_at,
+            version,
+            created_by, reviewed_by, published_by,
+            template_id
+        )
+        VALUES (
+                   #{id},
+                   #{name},
+                   #{description},
+                   #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+                   #{startDate},
+                   #{endDate},
+                   #{createAt},
+                   #{updateAt},
+                   #{version},
+                   #{createdBy},
+                   #{reviewedBy},
+                   #{publishedBy},
+                   #{templateId}
+               )
     </insert>
 
-    <!-- Implementation for the update with optimistic lock-->
-    <update id="updatePromotionDetails" parameterType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
+    <!-- UPDATE PROMOTION DETAILS -->
+    <update id="updatePromotionDetails">
         UPDATE promotion
         <set>
-            <if test="name !=null">name = #{name},</if>
+            <if test="name != null">name = #{name},</if>
             <if test="description != null">description = #{description},</if>
-            <if test="startDate != null">description = #{description},</if>
-            <if test="endDate != null">description = #{description},</if>
-            <if test="templateId != null">description = #{description},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="templateId != null">template_id = #{templateId},</if>
             updated_at = NOW(),
             version = version + 1
         </set>
         WHERE id = #{id}
-            AND version = #{version}
-            AND status IN ('DRAFT', 'REJECTED')  <!-- Only editable states -->
+        AND version = #{version}
+        AND status IN ('DRAFT', 'REJECTED')
     </update>
 
-    <!--  NEW: Transactional state transition with optimistic locking -->
+    <!-- STATE TRANSITION -->
     <update id="updateStateTransition">
         UPDATE promotion
         <set>
@@ -55,17 +78,17 @@
             version = version + 1
         </set>
         WHERE id = #{id}
-        AND version = #{version}
         AND status = #{expectedStatus}
+        AND version = #{version}
     </update>
 
-    <!-- Implementation for the findById() method -->
-    <select id="findById" parameterType="string" resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
+    <!-- FIND BY ID -->
+    <select id="findById" resultMap="PromotionResultMap">
         SELECT * FROM promotion WHERE id = #{id}
     </select>
 
-    <!-- Implementation for the findByAll() method -->
-    <select id="findByAll" resultType="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
+    <!-- FIND ALL -->
+    <select id="findAll" resultMap="PromotionResultMap">
         SELECT * FROM promotion ORDER BY created_at DESC
     </select>
 
