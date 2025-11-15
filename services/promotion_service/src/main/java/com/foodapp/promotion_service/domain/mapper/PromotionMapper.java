@@ -1,8 +1,9 @@
 package com.foodapp.promotion_service.domain.mapper;
 
+import com.foodapp.promotion_service.domain.model.DayTemplateDomain;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
+import com.foodapp.promotion_service.persistence.entity.DayTemplateEntity;
 import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
@@ -42,6 +43,28 @@ public class PromotionMapper {
                 .reviewedBy(entity.getReviewedBy())
                 .publishedBy(entity.getPublishedBy())
                 .templateId(entity.getTemplateId())
+                .build();
+    }
+
+    public static DayTemplateEntity toEnity (DayTemplateDomain domain) {
+        if (domain == null) {return null;}
+        return DayTemplateEntity.builder()
+                .id(domain.getId().toString())
+                .name(domain.getName())
+                .description(domain.getDescription())
+                .createdBy(domain.getCreateBy())
+                .createdAt(domain.getCreateAt())
+                .build();
+    }
+
+    public static DayTemplateDomain toDomain (DayTemplateEntity entity) {
+        if (entity == null) {return null;}
+        return DayTemplateDomain.builder()
+                .id(UUID.fromString(entity.getId()))
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .createBy(entity.getCreatedBy())
+                .createAt(entity.getCreatedAt())
                 .build();
     }
 

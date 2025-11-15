@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodapp.promotion_service.persistence.mapper.DayTemplateMapper">
+
+    <!-- ResultMap -->
+    <resultMap id="DayTemplateResultMap"
+               type="com.foodapp.promotion_service.persistence.entity.DayTemplateEntity">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="ruleJson" column="rule_json"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- Insert a new row -->
+    <insert id="create" parameterType="com.foodapp.promotion_service.persistence.entity.DayTemplateEntity">
+        INSERT INTO day_template (id, name, description, rule_json, created_by, created_at)
+        VALUES (
+                   #{id},
+                   #{name},
+                   #{description},
+                   #{ruleJson},
+                   #{createdBy},
+                   #{createdAt}
+               )
+    </insert>
+
+    <!-- FIND BY ID -->
+    <select id="findById" resultMap="DayTemplateResultMap">
+        SELECT * FROM day_template WHERE id = #{id}
+    </select>
+
+    <!-- FIND ALL -->
+    <select id="findAll" resultMap="DayTemplateResultMap">
+        SELECT * FROM day_template ORDER BY created_at DESC
+    </select>
+
+</mapper>
