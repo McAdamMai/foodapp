@@ -144,9 +144,13 @@ public class ActivityService {
      * Rolls back a published promotion.
      */
     @Transactional
-    public PromotionDomain rollBack(UUID id, String rollBackedBy, UserRole role){
-        // Paul to do
-        return PromotionDomain.builder().build();
+    public PromotionDomain rollBack(UUID id, String rolledBackBy, UserRole role){
+        return executeTransition(
+                loadDomain(id),
+                PromotionEvent.ROLLBACK,
+                role,
+                rolledBackBy
+        );
     }
 
     // ========== QUERIES ==========
