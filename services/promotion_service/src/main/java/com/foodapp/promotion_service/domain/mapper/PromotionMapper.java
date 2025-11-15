@@ -2,6 +2,7 @@ package com.foodapp.promotion_service.domain.mapper;
 
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 

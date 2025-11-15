@@ -23,7 +23,6 @@ import java.util.UUID;
 public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
     private final PromotionRepository promotionRepository;
-    private final PromotionMapper promotionMapper;
 
     @Transactional
     public PromotionDomain create(
@@ -131,37 +130,13 @@ public class ActivityService {
     @Transactional
     public PromotionDomain publish(UUID id, String publishedBy){
         // fetch current status
-        PromotionDomain current = loadDomain(id);
 
-        TransitionResult result = promotionStateMachine.validateTransition(
-                current,
+        return executeTransition(
+                loadDomain(id),
                 PromotionEvent.PUBLISH,
                 UserRole.PUBLISHER,
                 publishedBy
         );
-
-        PromotionDomain newDomain = current.applyTransition(result);
-
-        int rows = promotionRepository.updateStateTransition(
-                current.getId().toString(),
-                newDomain.getStatus(),
-                current.getStatus(), // expectedStatus=APPROVED
-                current.getVersion(),
-                newDomain.getReviewedBy(),
-                newDomain.getPublishedBy()
-        );
-
-        //conflicts handling
-
-        if (rows == 0) {
-            throw new OptimisticLockException(
-                    "Promotion",
-                    current.getId().toString(),
-                    current.getVersion()
-            );
-        }
-
-        return loadDomain(id);
 
     }
 
@@ -225,7 +200,7 @@ public class ActivityService {
         PromotionDomain updatedDomain  = currentDomain.applyTransition(result);
 
         // 3. Execute atomic DB update with optimistic locking
-        int rowsAffected = promotionRepository.updateStateTransaction(
+        int rowsAffected = promotionRepository.updateStateTransition(
                 currentDomain.getId().toString(),
                 updatedDomain.getStatus(),
                 currentDomain.getStatus(),
