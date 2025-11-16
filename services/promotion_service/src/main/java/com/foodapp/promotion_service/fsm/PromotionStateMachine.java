@@ -31,10 +31,7 @@ public class PromotionStateMachine {
     }
 
     public TransitionResult validateTransition(PromotionDomain domain, PromotionEvent event, UserRole role, String actor){
-        // Business rule: Creator cannot approve their own promotion
-        if (event.equals(PromotionEvent.APPROVE) && actor.equals(domain.getCreatedBy())) {
-            throw new IllegalStateException("Creator cannot approve their own promotion.");
-        }
+
         Transition validTransition = transitions.stream()
                 .filter(t -> t.matches(domain.getStatus(), event, role))
                 .findFirst()

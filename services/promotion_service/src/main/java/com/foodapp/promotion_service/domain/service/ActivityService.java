@@ -84,7 +84,7 @@ public class ActivityService {
         PromotionDomain currentDomain = loadDomain(id);
 
         // 2. validate business rules (read-only, doesn't modify state)
-        currentDomain.validateCanBeEdited(submittedBy);
+        currentDomain.validateCanBeSubmitted(submittedBy);
         // 3. Execute transactional state transition
         return executeTransition(
           currentDomain,
@@ -99,10 +99,14 @@ public class ActivityService {
      */
     @Transactional
     public PromotionDomain approve(UUID id, String reviewedBy){
-       // add log log.info("Approving promotion: id={}, reviewedBy={}", id, reviewedBy);
+        // add log log.info("Approving promotion: id={}, reviewedBy={}", id, reviewedBy);
+        // 1. load current state
+        PromotionDomain currentDomain = loadDomain(id);
+
+        currentDomain.validateCanBeReviewed(reviewedBy);
 
         return executeTransition(
-            loadDomain(id),
+            currentDomain,
             PromotionEvent.APPROVE,
             UserRole.REVIEWER,
             reviewedBy
@@ -115,6 +119,9 @@ public class ActivityService {
     @Transactional
     public PromotionDomain reject(UUID id, String reviewedBy){
         // add log log.info("Rejecting promotion: id={}, reviewedBy={}", id, reviewedBy);
+        PromotionDomain currentDomain = loadDomain(id);
+
+        currentDomain.validateCanBeReviewed(reviewedBy);
 
         return executeTransition(
                 loadDomain(id),
@@ -130,6 +137,9 @@ public class ActivityService {
     @Transactional
     public PromotionDomain publish(UUID id, String publishedBy){
         // fetch current status
+        PromotionDomain currentDomain = loadDomain(id);
+
+        currentDomain.validateCanBePublished(publishedBy);
 
         return executeTransition(
                 loadDomain(id),
@@ -145,6 +155,10 @@ public class ActivityService {
      */
     @Transactional
     public PromotionDomain rollBack(UUID id, String rolledBackBy, UserRole role){
+        PromotionDomain currentDomain = loadDomain(id);
+
+        currentDomain.validateRollback();
+
         return executeTransition(
                 loadDomain(id),
                 PromotionEvent.ROLLBACK,

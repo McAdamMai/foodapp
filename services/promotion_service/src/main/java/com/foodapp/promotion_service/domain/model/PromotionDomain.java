@@ -1,6 +1,8 @@
 package com.foodapp.promotion_service.domain.model;
 
 import com.foodapp.promotion_service.domain.model.enums.ReviewDecision;
+import com.foodapp.promotion_service.exception.UnauthorizedException;
+import com.foodapp.promotion_service.fsm.PromotionEvent;
 import com.foodapp.promotion_service.fsm.PromotionStateMachine;
 import com.foodapp.promotion_service.fsm.PromotionStatus;
 import com.foodapp.promotion_service.fsm.PromotionStateMachine.TransitionResult;
@@ -101,5 +103,33 @@ public class PromotionDomain {
         if (!this.createdBy.equals(UpdatedBy)) {
             throw new IllegalStateException("Only the creator can edit this promotion");
         }
+    }
+
+    public void validateCanBeReviewed(String reviewedBy) {
+        if (this.status != PromotionStatus.SUBMITTED) {
+            throw new IllegalStateException("Only SUBMITTED promotions can be reviewed");
+        }
+
+        if (this.createdBy.equals(reviewedBy)) {
+            throw new UnauthorizedException("User %s is not authorized to review this promotion");
+        }
+    }
+
+    public void validateCanBePublished(String publishedBy) {
+        if (this.status != PromotionStatus.PUBLISHED) {
+            throw new IllegalStateException("Only PUBLISHED promotions can be published");
+        }
+
+        if (!this.createdBy.equals(publishedBy)) {
+            throw new IllegalStateException("Only the publisher can publish this promotion");
+        }
+    }
+
+    public void validateRollback() {
+        if (this.status != PromotionStatus.PUBLISHED) {
+            throw new IllegalStateException("Only PUBLISHED promotions can be rollbacked");
+        }
+
+        // should have identity check?
     }
 }
