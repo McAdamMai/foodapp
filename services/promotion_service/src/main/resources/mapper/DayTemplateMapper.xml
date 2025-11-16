@@ -28,6 +28,47 @@
                )
     </insert>
 
+    <!-- Update - full update with dynamic fields -->
+    <update id= "update">
+        UPDATE day_template
+        SET
+            name =  #{name},
+            description =  #{description},
+            rule_json = #{ruleJson}
+            created_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- Update - partial update with dynamic fields -->
+    <update id= "partialUpdate">
+        UPDATE day_template
+        <set>
+            <if test="name !=null"> name =  #{name}, </if>
+            <if test="description !=null"> description =  #{description}, </if>
+            <if test="ruleJson !=null"> ruleJson =  #{ruleJson}, </if>
+            created_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- Delete - Hard delete -->
+    <delete id = "delete">
+        DELETE  FROM day_template WHERE id = #{id}
+    </delete>
+
+    <!-- Bulk Delete - Hard delete multiple templates -->
+    <delete id = "bulkDelete">
+        DELETE  FROM day_template
+        WHERE id IN
+        <foreach collection="ids" item = "id" open='(' separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- TODO: SOFT DELETE - Mark as deleted (if you implement soft delete) (need add field) https://poe.com/s/iM79G7vtdnrEIsCD6bwK-->
+
+    <!-- TODO: RESTORE for SOFT DELETE - Unmark as deleted (if you implement soft delete) (need add field)-->
+
     <!-- FIND BY ID -->
     <select id="findById" resultMap="DayTemplateResultMap">
         SELECT * FROM day_template WHERE id = #{id}
@@ -38,4 +79,8 @@
         SELECT * FROM day_template ORDER BY created_at DESC
     </select>
 
+    <!-- CHECK IF EXISTS BY ID -->
+    <select id="existsById" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM day_template WHERE id = #{id}
+    </select>
 </mapper>

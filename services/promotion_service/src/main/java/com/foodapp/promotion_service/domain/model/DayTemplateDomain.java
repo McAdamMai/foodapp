@@ -26,7 +26,7 @@ public class DayTemplateDomain {
             String description,
             String ruleJson,
             String createBy){
-        LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = LocalDateTime.now();
         return DayTemplateDomain.builder()
                 .id(UUID.randomUUID())
                 .name(name)
