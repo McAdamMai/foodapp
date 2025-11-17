@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.foodapp.promotion_service.persistence.mapper.DayTemplateMapper">
+<mapper namespace="com.foodapp.promotion_service.persistence.repository.DayTemplateRepository">
 
     <!-- ResultMap -->
     <resultMap id="DayTemplateResultMap"

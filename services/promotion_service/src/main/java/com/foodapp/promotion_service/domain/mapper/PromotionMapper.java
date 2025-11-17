@@ -2,8 +2,10 @@ package com.foodapp.promotion_service.domain.mapper;
 
 import com.foodapp.promotion_service.domain.model.DayTemplateDomain;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
+import com.foodapp.promotion_service.domain.model.PromotionOutboxDomain;
 import com.foodapp.promotion_service.persistence.entity.DayTemplateEntity;
 import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
+import com.foodapp.promotion_service.persistence.entity.PromotionOutboxEntity;
 
 import java.util.UUID;
 
@@ -65,6 +67,40 @@ public class PromotionMapper {
                 .description(entity.getDescription())
                 .createBy(entity.getCreatedBy())
                 .createAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static PromotionOutboxEntity toEntity(PromotionOutboxDomain domain) {
+        if (domain == null) {
+            return null;
+        }
+
+        return PromotionOutboxEntity.builder()
+                .id(domain.getId())
+                .aggregateId(domain.getAggregateId())
+                .aggregateVersion(domain.getAggregateVersion())
+                .eventType(domain.getEventType())
+                .changeMask(domain.getChangeMask())
+                .payload(domain.getPayload())
+                .occurredAt(domain.getOccurredAt())
+                .publishedAt(domain.getPublishedAt())
+                .build();
+    }
+
+    public static PromotionOutboxDomain toDomain(PromotionOutboxEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return PromotionOutboxDomain.builder()
+                .id(entity.getId())
+                .aggregateId(entity.getAggregateId())
+                .aggregateVersion(entity.getAggregateVersion())
+                .eventType(entity.getEventType())
+                .changeMask(entity.getChangeMask())
+                .payload(entity.getPayload())
+                .occurredAt(entity.getOccurredAt())
+                .publishedAt(entity.getPublishedAt())
                 .build();
     }
 

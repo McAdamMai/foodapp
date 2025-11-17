@@ -24,6 +24,7 @@ public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
     private final PromotionRepository promotionRepository;
 
+    // TODO: add emit event in business logic https://poe.com/s/GoTG2umtK4MiNPeYopw0
     @Transactional
     public PromotionDomain create(
             String name,

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodapp.promotion_service.persistence.repository.PromotionOutboxRepository">
+
+    <!-- ResultMap -->
+    <resultMap id="PromotionOutboxMap"
+               type="com.foodapp.promotion_service.persistence.entity.PromotionOutboxEntity">
+        <id property="id" column="id" jdbcType="OTHER" typeHandler="org.apache.ibatis.type.UUIDTypeHandler"/>
+        <result property="aggregateId" column="aggregate_id" jdbcType="OTHER" typeHandler="org.apache.ibatis.type.UUIDTypeHandler"/>
+        <result property="aggregateVersion" column="aggregate_version"/>
+        <result property="eventType" column="event_type"/>
+        <result property="changeMask" column="chang_mask" jdbcType="OTHER" typeHandler="com.foodapp.promotion_service.persistence.typehandler.JsonListTypeHandler"/>
+        <result property="payload" column="payload" jdbcType="OTHER" typeHandler="com.foodapp.promotion_service.persistence.typehandler.JsonStringTypeHandler"/>
+        <result property="occurredAt" column="occurred_at"/>
+        <result property="publishedAt" column="published_at"/>
+    </resultMap>
+
+    <!-- Insert a new row -->
+    <insert id="createOutbox" parameterType="com.foodapp.promotion_service.persistence.entity.PromotionOutboxEntity">
+        INSERT INTO promotion_outbox (
+            id,
+            aggregated_id,
+            aggregate_version,
+            event_type,
+            change_mask,
+            payload,
+            occurred_at,
+            published_at
+        )
+        VALUES (
+            #{id}::uuid,
+            #{aggregateId}::uuid,
+            #{aggregateVersion},
+            #{eventType},
+            #{changeMask}::jsonb,
+            #{payload}::jsonb,
+            #{occurredAt},
+            #{publishedAt}
+        )
+    </insert>
+</mapper>
