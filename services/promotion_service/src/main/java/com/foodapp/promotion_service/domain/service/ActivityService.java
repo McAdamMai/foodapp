@@ -24,7 +24,7 @@ public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
     private final PromotionRepository promotionRepository;
 
-    // TODO: add emit event in business logic https://poe.com/s/GoTG2umtK4MiNPeYopw0
+    // TODO: how to identify create and modify promotion(from publish)
     // TODO: https://poe.com/s/RQPoYfAoXUd8uyto2TtC kafka dispatcher
     @Transactional
     public PromotionDomain create(

@@ -6,9 +6,13 @@ import com.foodapp.promotion_service.api.controller.PromotionChangedEventPayload
 import com.foodapp.promotion_service.domain.mapper.PromotionMapper;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.domain.model.PromotionOutboxDomain;
+import com.foodapp.promotion_service.domain.model.enums.EventType;
+import com.foodapp.promotion_service.domain.model.enums.MaskType;
 import com.foodapp.promotion_service.persistence.repository.PromotionOutboxRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +23,14 @@ public class PromotionOutboxService {
     public void saveOutbox(PromotionChangedEventPayload payload) {
         try {
             String json = mapper.writeValueAsString(payload);
-
+            List<String> changeMask = payload.changeMask().stream()
+                    .map(MaskType::name)
+                    .toList();
             PromotionOutboxDomain newOutbox = PromotionOutboxDomain.createOutbox(
                     payload.messageId(),
                     payload.promotionId(),
                     payload.promotionVersion(),
-                    payload.changeMask(),
+                    changeMask,
                     json,
                     payload.occurredAt()
             );
@@ -35,4 +41,5 @@ public class PromotionOutboxService {
             throw new RuntimeException("Failed to serialize payload",e);
         }
     }
+
 }
