@@ -7,7 +7,7 @@ import com.foodapp.promotion_service.domain.model.DayTemplateDomain;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.persistence.entity.DayTemplateEntity;
 import com.foodapp.promotion_service.persistence.repository.DayTemplateRepository;
-import com.yourapp.exception.TemplateNotFoundException;
+import com.foodapp.exception.TemplateNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class TemplateService {
             String createdBy
     ) {
         DayTemplateDomain newTemplate = DayTemplateDomain.createNewTemplate(name, description, ruleJson, createdBy);
-        repo.create(PromotionMapper.toEnity(newTemplate));
+        repo.create(PromotionMapper.toEntity(newTemplate));
         return newTemplate;
     }
 
@@ -94,7 +94,7 @@ public class TemplateService {
         }
 
         if (request.getDescription() != null) {
-            builder.name(request.getDescription());
+            builder.description(request.getDescription());
         }
 
         if (request.getRuleJson() != null) {

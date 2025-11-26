@@ -48,12 +48,13 @@ public class PromotionMapper {
                 .build();
     }
 
-    public static DayTemplateEntity toEnity (DayTemplateDomain domain) {
+    public static DayTemplateEntity toEntity (DayTemplateDomain domain) {
         if (domain == null) {return null;}
         return DayTemplateEntity.builder()
                 .id(domain.getId().toString())
                 .name(domain.getName())
                 .description(domain.getDescription())
+                .ruleJson(domain.getRuleJson())
                 .createdBy(domain.getCreateBy())
                 .createdAt(domain.getCreateAt())
                 .build();
@@ -65,6 +66,7 @@ public class PromotionMapper {
                 .id(UUID.fromString(entity.getId()))
                 .name(entity.getName())
                 .description(entity.getDescription())
+                .ruleJson(entity.getRuleJson())
                 .createBy(entity.getCreatedBy())
                 .createAt(entity.getCreatedAt())
                 .build();

@@ -1,4 +1,4 @@
-package com.yourapp.exception;
+package com.foodapp.exception;
 
 /**
  * Custom exception thrown when a specific template resource cannot be found in the system.
