@@ -2,6 +2,7 @@ package com.foodapp.promotion_service.domain.service;
 
 import com.foodapp.promotion_service.api.controller.dto.request.PromotionUpdateRequest;
 import com.foodapp.promotion_service.domain.exception.OptimisticLockException;
+import org.springframework.context.ApplicationEventPublisher; // <--- Add this import
 import com.foodapp.promotion_service.domain.mapper.PromotionMapper;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.fsm.PromotionEvent;
@@ -24,8 +25,9 @@ public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
     private final PromotionRepository promotionRepository;
 
-    // TODO: how to identify create and modify promotion(from publish)
-    // TODO: https://poe.com/s/RQPoYfAoXUd8uyto2TtC kafka dispatcher
+    // Spring provides this automatically via Dependency Injection
+    private final ApplicationEventPublisher eventPublisher;
+
     @Transactional
     public PromotionDomain create(
             String name,
@@ -238,7 +240,13 @@ public class ActivityService {
             );
         }
 
-        // 5. Reload from DB to get the latest state (including new version)
+        // 5. Publish the event so the Listener works
+        eventPublisher.publishEvent(new com.foodapp.promotion_service.domain.event.PromotionChangedDomainEvent(
+                currentDomain,
+                updatedDomain
+        ));
+
+        // 6. Reload from DB to get the latest state (including new version)
         return loadDomain(currentDomain.getId());
     }
 

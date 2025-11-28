@@ -11,5 +11,4 @@ import java.util.UUID;
 public class PromotionChangedDomainEvent {
     private final PromotionDomain oldPromotionDomain;
     private final PromotionDomain newPromotionDomain;
-    private final UUID correlationId;
 }

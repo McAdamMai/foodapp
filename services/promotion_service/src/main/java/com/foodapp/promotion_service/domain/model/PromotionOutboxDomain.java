@@ -18,10 +18,8 @@ public class PromotionOutboxDomain {
     private UUID id;
     private UUID aggregateId;
     private int aggregateVersion;
-    private String eventType;
     private List<String> changeMask;
     private String payload;
-    private Instant occurredAt;
     private Instant publishedAt;
 
     // ========== FACTORY METHOD FOR CREATION ==========
@@ -35,18 +33,15 @@ public class PromotionOutboxDomain {
             UUID aggregateId,
             int aggregateVersion,
             List<String> changeMask,
-            String payload,
-            Instant occurredAt
+            String payload
     ){
         Instant now = Instant.now();
         return PromotionOutboxDomain.builder()
                 .id(id)
                 .aggregateId(aggregateId)
                 .aggregateVersion(aggregateVersion)
-                .eventType("PromotionChanged")
                 .changeMask(changeMask)
                 .payload(payload)
-                .occurredAt(occurredAt)
                 .publishedAt(now)
                 .build();
     }

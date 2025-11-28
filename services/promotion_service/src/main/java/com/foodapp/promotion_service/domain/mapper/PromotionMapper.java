@@ -81,10 +81,8 @@ public class PromotionMapper {
                 .id(domain.getId())
                 .aggregateId(domain.getAggregateId())
                 .aggregateVersion(domain.getAggregateVersion())
-                .eventType(domain.getEventType())
                 .changeMask(domain.getChangeMask())
                 .payload(domain.getPayload())
-                .occurredAt(domain.getOccurredAt())
                 .publishedAt(domain.getPublishedAt())
                 .build();
     }
@@ -98,10 +96,8 @@ public class PromotionMapper {
                 .id(entity.getId())
                 .aggregateId(entity.getAggregateId())
                 .aggregateVersion(entity.getAggregateVersion())
-                .eventType(entity.getEventType())
                 .changeMask(entity.getChangeMask())
                 .payload(entity.getPayload())
-                .occurredAt(entity.getOccurredAt())
                 .publishedAt(entity.getPublishedAt())
                 .build();
     }

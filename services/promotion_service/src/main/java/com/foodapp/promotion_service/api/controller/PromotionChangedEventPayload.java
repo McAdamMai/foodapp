@@ -4,6 +4,7 @@ import com.foodapp.promotion_service.domain.model.enums.EventType;
 import com.foodapp.promotion_service.domain.model.enums.MaskType;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import java.util.List;
 
@@ -13,6 +14,9 @@ public record PromotionChangedEventPayload(
         int promotionVersion,
         String status,
         List<MaskType> changeMask,
-        Instant occurredAt,
-        UUID correlationId
+
+        // THE NEW STATE (The Source of Truth)
+        LocalDate startDate,
+        LocalDate endDate,
+        String templateId
 ) { }

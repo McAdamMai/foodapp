@@ -13,13 +13,12 @@ public class PromotionEventListener {
 
     private final OutboxEventEmitter outboxEventEmitter;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onPromotionChanged(PromotionChangedDomainEvent event) {
 
         outboxEventEmitter.emitPromotionChangeIfNeeded(
                 event.getOldPromotionDomain(),
-                event.getNewPromotionDomain(),
-                event.getCorrelationId()
+                event.getNewPromotionDomain()
         );
     }
 }

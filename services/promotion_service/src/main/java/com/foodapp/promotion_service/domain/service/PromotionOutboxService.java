@@ -22,6 +22,7 @@ public class PromotionOutboxService {
 
     public void saveOutbox(PromotionChangedEventPayload payload) {
         try {
+            // storing the Full New State plus a Change Mask is the industry standard
             String json = mapper.writeValueAsString(payload);
             List<String> changeMask = payload.changeMask().stream()
                     .map(MaskType::name)
@@ -31,8 +32,7 @@ public class PromotionOutboxService {
                     payload.promotionId(),
                     payload.promotionVersion(),
                     changeMask,
-                    json,
-                    payload.occurredAt()
+                    json
             );
 
             repo.createOutbox(PromotionMapper.toEntity(newOutbox));
