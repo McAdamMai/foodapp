@@ -6,8 +6,10 @@
 
     <resultMap id="PromotionOutboxMap"
                type="com.foodapp.promotion_service.persistence.entity.PromotionOutboxEntity">
-        <id property="id" column="id" jdbcType="OTHER" typeHandler="org.apache.ibatis.type.UUIDTypeHandler"/>
-        <result property="aggregateId" column="aggregate_id" jdbcType="OTHER" typeHandler="org.apache.ibatis.type.UUIDTypeHandler"/>
+
+        <id property="id" column="id" typeHandler="com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler"/>
+        <result property="aggregateId" column="aggregate_id" typeHandler="com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler"/>
+
         <result property="aggregateVersion" column="aggregate_version"/>
 
         <result property="changeMask" column="change_mask" jdbcType="OTHER" typeHandler="com.foodapp.promotion_service.persistence.typehandler.JsonListTypeHandler"/>
@@ -25,11 +27,15 @@
             published_at
         )
         VALUES (
-                   #{id}::uuid,
-                   #{aggregateId}::uuid,
+                   #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,
+                   #{aggregateId, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,
+
                    #{aggregateVersion},
-                   #{changeMask}::jsonb,
-                   #{payload}::jsonb,
+
+                   #{changeMask, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonListTypeHandler}::jsonb,
+
+                   #{payload, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonStringTypeHandler}::jsonb,
+
                    #{publishedAt}
                )
     </insert>
