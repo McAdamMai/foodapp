@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+  postgres-primary:
+    image: postgres:16
+    container_name: postgres-primary
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: promo123!
+      POSTGRES_DB: promotion_db
+    volumes:
+      - primary-data:/var/lib/postgresql/data
+    networks:
+      - foodapp-net
+
+  postgres-replica:
+    image: postgres:16
+    container_name: postgres-replica
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: promo123!
+      POSTGRES_DB: promotion_db
+    volumes:
+      - ./replica-data:/var/lib/postgresql/data
+    networks:
+      - foodapp-net
+    depends_on:
+      - postgres-primary
+
+networks:
+  foodapp-net:
+
+volumes:
+  primary-data:
