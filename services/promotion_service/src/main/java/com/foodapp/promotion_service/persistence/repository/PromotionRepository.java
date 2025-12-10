@@ -6,10 +6,12 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.UUID;
 
 @Mapper
 public interface PromotionRepository {
-    PromotionEntity findById(String id);
+    //must explicitly name the parameter in your Java interface using @Param. This tells MyBatis, "Treat this argument as the variable named 'id'."
+    PromotionEntity findById(@Param("id") UUID id);
 
     List<PromotionEntity> findAll();
 
@@ -18,7 +20,7 @@ public interface PromotionRepository {
     int updatePromotionDetails(PromotionEntity entity);
 
     int updateStateTransition(
-            @Param("id") String id,
+            @Param("id") UUID id,
             @Param("status") PromotionStatus status,
             @Param("expectedStatus") PromotionStatus expectedStatus,
             @Param("version") Integer version,

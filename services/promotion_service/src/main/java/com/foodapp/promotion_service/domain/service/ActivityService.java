@@ -24,6 +24,7 @@ import java.util.UUID;
 public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
     private final PromotionRepository promotionRepository;
+    private final UserAuthorizationService authService;
 
     // Spring provides this automatically via Dependency Injection
     private final ApplicationEventPublisher eventPublisher;
@@ -35,7 +36,7 @@ public class ActivityService {
             LocalDate startDate,
             LocalDate endDate,
             String createdBy,
-            String temPlateId
+            UUID temPlateId
     ){
         // add log for "log.info("Creating new promotion: name={}, createdBy={}", name, createdBy)"
         PromotionDomain newPromotion = PromotionDomain.createNew(
@@ -50,6 +51,7 @@ public class ActivityService {
         return newPromotion;
     }
 
+    // only the publisher can do urgent update
     @Transactional
     public PromotionDomain updateDetails(PromotionUpdateRequest request){
         // validation: must have something to update
@@ -57,11 +59,13 @@ public class ActivityService {
             throw new IllegalArgumentException("No fields to update");
         }
 
+        authService.validateUserRole(request.updatedBy(), UserRole.PUBLISHER);
+
         // 1. Load current state
-        PromotionDomain domain = loadDomain(request.getId());
+        PromotionDomain domain = loadDomain(request.id());
 
         // 2. Validate (read-only)
-        domain.validateCanBeEdited(request.getUpdatedBy());
+        domain.validateCanBeUpdated(request.updatedBy());
 
         // 3. Build update entity with CURRENT version
         PromotionEntity updateEntity = buildUpdateEntity(request, domain.getVersion());
@@ -75,7 +79,14 @@ public class ActivityService {
         }
 
         // 6. Reload and return updated state
-        return loadDomain(request.getId());
+        PromotionDomain newDomain = loadDomain(request.id());
+
+        eventPublisher.publishEvent(new com.foodapp.promotion_service.domain.event.PromotionChangedDomainEvent(
+                domain,
+                newDomain
+        ));
+
+        return newDomain;
     }
 
     /**
@@ -83,7 +94,6 @@ public class ActivityService {
      */
     @Transactional
     public PromotionDomain submit(UUID id, String submittedBy){
-
         // 1. load current state
         PromotionDomain currentDomain = loadDomain(id);
 
@@ -103,8 +113,10 @@ public class ActivityService {
      */
     @Transactional
     public PromotionDomain approve(UUID id, String reviewedBy){
-        // add log log.info("Approving promotion: id={}, reviewedBy={}", id, reviewedBy);
-        // 1. load current state
+        // 1. Validate actor role
+        authService.validateUserRole(reviewedBy, UserRole.REVIEWER);
+
+        // 2. load current state
         PromotionDomain currentDomain = loadDomain(id);
 
         currentDomain.validateCanBeReviewed(reviewedBy);
@@ -122,7 +134,9 @@ public class ActivityService {
      */
     @Transactional
     public PromotionDomain reject(UUID id, String reviewedBy){
-        // add log log.info("Rejecting promotion: id={}, reviewedBy={}", id, reviewedBy);
+        // 1. Validate actor role
+        authService.validateUserRole(reviewedBy, UserRole.REVIEWER);
+
         PromotionDomain currentDomain = loadDomain(id);
 
         currentDomain.validateCanBeReviewed(reviewedBy);
@@ -140,7 +154,10 @@ public class ActivityService {
      */
     @Transactional
     public PromotionDomain publish(UUID id, String publishedBy){
-        // fetch current status
+
+        // 1. Validate actor role
+        authService.validateUserRole(publishedBy, UserRole.PUBLISHER);
+        // 2. fetch current status
         PromotionDomain currentDomain = loadDomain(id);
 
         currentDomain.validateCanBePublished(publishedBy);
@@ -223,7 +240,7 @@ public class ActivityService {
 
         // 3. Execute atomic DB update with optimistic locking
         int rowsAffected = promotionRepository.updateStateTransition(
-                currentDomain.getId().toString(),
+                currentDomain.getId(),
                 updatedDomain.getStatus(),
                 currentDomain.getStatus(),
                 currentDomain.getVersion(),
@@ -252,7 +269,7 @@ public class ActivityService {
 
     private PromotionDomain loadDomain(UUID id) {
         return PromotionMapper.toDomain(
-                promotionRepository.findById(id.toString())
+                promotionRepository.findById(id)
         );
     }
 
@@ -261,24 +278,26 @@ public class ActivityService {
             Integer currentVersion
     ) {
         PromotionEntity.PromotionEntityBuilder builder = PromotionEntity.builder()
-                .id(request.getId().toString())
+                // FIX 1: Change getId() to id() (record accessor)
+                .id(request.id())
                 .version(currentVersion);
 
         // set only non-null fields
-        if (request.getName() != null) {
-            builder.name(request.getName());
+        if (request.name() != null) { // FIX 2: Change getName() to name()
+            builder.name(request.name());
         }
-        if (request.getDescription() != null) {
-            builder.description(request.getDescription());
+        if (request.description() != null) { // FIX 3: Change getDescription() to description()
+            builder.description(request.description());
         }
-        if (request.getStartDate() != null) {
-            builder.startDate(request.getStartDate());
+        if (request.startDate() != null) { // FIX 4: Change getStartDate() to startDate()
+            builder.startDate(request.startDate());
         }
-        if (request.getEndDate() != null) {
-            builder.endDate(request.getEndDate());
+        if (request.endDate() != null) { // FIX 5: Change getEndDate() to endDate()
+            builder.endDate(request.endDate());
         }
-        if (request.getTemplateId() != null) {
-            builder.templateId(request.getTemplateId());
+        if (request.templateId() != null) { // FIX 6: Change getTemplateId() to templateId()
+            // The method signature uses UUID, and the accessor returns UUID. No casting needed.
+            builder.templateId(request.templateId());
         }
 
         return builder.build();

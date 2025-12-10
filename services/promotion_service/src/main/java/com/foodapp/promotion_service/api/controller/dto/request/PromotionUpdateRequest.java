@@ -1,41 +1,50 @@
 package com.foodapp.promotion_service.api.controller.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Future;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PromotionUpdateRequest {
-    private UUID id;
-    private Integer version;
+public record PromotionUpdateRequest(
+        UUID id,
+        Integer version,
 
-    // Optional fields - null  means "don't update"
-    private String name;
-    private String description;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String templateId;
+        String name,
+        String description,
 
-    // Required field
-    private String updatedBy;
+        @Future(message = "Start date must be in the future")
+        LocalDate startDate,
+
+        LocalDate endDate,
+        UUID templateId,
+
+        // Required field
+        String updatedBy
+) {
 
     /**
-     * Check if this request has any fields t update (can it be done by frontend)
-     * */
+     * Check if this request has any fields to update.
+     * This works perfectly fine in a record.
+     */
     public boolean hasUpdates() {
         return name != null ||
                 description != null ||
                 startDate != null ||
                 endDate != null ||
                 templateId != null;
+    }
+
+    /**
+     * Compact Constructor for Validation.
+     * CRITICAL FIX: We must handle partial updates safely.
+     */
+    public PromotionUpdateRequest {
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("End date must be after start date");
+        }
     }
 }

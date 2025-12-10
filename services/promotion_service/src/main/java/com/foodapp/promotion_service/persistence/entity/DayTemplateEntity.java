@@ -3,7 +3,7 @@ package com.foodapp.promotion_service.persistence.entity;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.UUID; // Import UUID
 
 @Getter
 @Setter
@@ -11,7 +11,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class DayTemplateEntity {
-    private String id;
+    // 1. CHANGE THIS FROM String TO UUID
+    private UUID id;
+
     private String name;
     private String description;
     private String ruleJson;

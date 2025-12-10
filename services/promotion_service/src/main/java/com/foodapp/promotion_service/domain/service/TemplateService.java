@@ -51,11 +51,11 @@ public class TemplateService {
 
     @Transactional
     public void delete(UUID id) {
-        if (!repo.existsById(id.toString())) {
+        if (!repo.existsById(id)) {
             throw new TemplateNotFoundException("Template not found: " + id);
         }
 
-        int deleted = repo.delete(id.toString());
+        int deleted = repo.delete(id);
 
         if (deleted == 0) {
             throw new TemplateNotFoundException("Template not found: " + id);
@@ -81,13 +81,13 @@ public class TemplateService {
     // ========== Private helper service ==========
     private DayTemplateDomain loadDomain(UUID id) {
         return PromotionMapper.toDomain(
-                repo.findById(id.toString())
+                repo.findById(id)
         );
     }
 
     private DayTemplateEntity buildEntity(TemplateUpdateRequest request) {
         DayTemplateEntity.DayTemplateEntityBuilder builder = DayTemplateEntity.builder()
-                .id(request.getId().toString());
+                .id(request.getId());
 
         if (request.getName() != null) {
             builder.name(request.getName());

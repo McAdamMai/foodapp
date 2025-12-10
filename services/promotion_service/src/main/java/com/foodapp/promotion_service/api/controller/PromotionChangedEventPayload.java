@@ -18,5 +18,5 @@ public record PromotionChangedEventPayload(
         // THE NEW STATE (The Source of Truth)
         LocalDate startDate,
         LocalDate endDate,
-        String templateId
+        UUID templateId
 ) { }

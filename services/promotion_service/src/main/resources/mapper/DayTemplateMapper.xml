@@ -4,10 +4,10 @@
 
 <mapper namespace="com.foodapp.promotion_service.persistence.repository.DayTemplateRepository">
 
-    <!-- ResultMap -->
     <resultMap id="DayTemplateResultMap"
                type="com.foodapp.promotion_service.persistence.entity.DayTemplateEntity">
-        <id property="id" column="id"/>
+        <id property="id" column="id" typeHandler="com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler"/>
+
         <result property="name" column="name"/>
         <result property="description" column="description"/>
         <result property="ruleJson" column="rule_json"/>
@@ -15,72 +15,63 @@
         <result property="createdAt" column="created_at"/>
     </resultMap>
 
-    <!-- Insert a new row -->
     <insert id="create" parameterType="com.foodapp.promotion_service.persistence.entity.DayTemplateEntity">
         INSERT INTO day_template (id, name, description, rule_json, created_by, created_at)
         VALUES (
-                   #{id},
+                   #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,
                    #{name},
                    #{description},
-                   #{ruleJson},
+                   #{ruleJson}::jsonb,
                    #{createdBy},
                    #{createdAt}
                )
     </insert>
 
-    <!-- Update - full update with dynamic fields -->
-    <update id= "update">
+    <update id="update">
         UPDATE day_template
         SET
-            name =  #{name},
-            description =  #{description},
-            rule_json = #{ruleJson}
-            created_at = NOW()
-        WHERE id = #{id}
+            name = #{name},
+            description = #{description},
+            rule_json = #{ruleJson}::jsonb
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </update>
 
-    <!-- Update - partial update with dynamic fields -->
-    <update id= "partialUpdate">
+    <update id="partialUpdate">
         UPDATE day_template
         <set>
-            <if test="name !=null"> name =  #{name}, </if>
-            <if test="description !=null"> description =  #{description}, </if>
-            <if test="ruleJson !=null"> ruleJson =  #{ruleJson}, </if>
-            created_at = NOW()
+            <trim suffixOverrides=",">
+                <if test="name != null"> name = #{name}, </if>
+                <if test="description != null"> description = #{description}, </if>
+                <if test="ruleJson != null"> rule_json = #{ruleJson}::jsonb, </if>
+            </trim>
         </set>
-        WHERE id = #{id}
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </update>
 
-    <!-- Delete - Hard delete -->
-    <delete id = "delete">
-        DELETE  FROM day_template WHERE id = #{id}
+    <delete id="delete">
+        DELETE FROM day_template
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </delete>
 
-    <!-- Bulk Delete - Hard delete multiple templates -->
-    <delete id = "bulkDelete">
-        DELETE  FROM day_template
+    <delete id="bulkDelete">
+        DELETE FROM day_template
         WHERE id IN
-        <foreach collection="ids" item = "id" open='(' separator="," close=")">
-            #{id}
+        <foreach collection="ids" item="id" open='(' separator="," close=")">
+            #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
         </foreach>
     </delete>
 
-    <!-- TODO: SOFT DELETE - Mark as deleted (if you implement soft delete) (need add field) https://poe.com/s/iM79G7vtdnrEIsCD6bwK-->
-
-    <!-- TODO: RESTORE for SOFT DELETE - Unmark as deleted (if you implement soft delete) (need add field)-->
-
-    <!-- FIND BY ID -->
     <select id="findById" resultMap="DayTemplateResultMap">
-        SELECT * FROM day_template WHERE id = #{id}
+        SELECT * FROM day_template
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </select>
 
-    <!-- FIND ALL -->
     <select id="findAll" resultMap="DayTemplateResultMap">
         SELECT * FROM day_template ORDER BY created_at DESC
     </select>
 
-    <!-- CHECK IF EXISTS BY ID -->
     <select id="existsById" resultType="boolean">
-        SELECT COUNT(*) > 0 FROM day_template WHERE id = #{id}
+        SELECT COUNT(*) > 0 FROM day_template
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </select>
 </mapper>

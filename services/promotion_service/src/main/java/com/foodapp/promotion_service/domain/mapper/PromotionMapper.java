@@ -13,7 +13,7 @@ public class PromotionMapper {
     public static PromotionEntity toEntity(PromotionDomain domain) {
         if (domain == null) {return null;}
         return PromotionEntity.builder()
-                .id(domain.getId().toString())
+                .id(domain.getId())
                 .name(domain.getName())
                 .description(domain.getDescription())
                 .status(domain.getStatus())
@@ -32,7 +32,7 @@ public class PromotionMapper {
     public static PromotionDomain toDomain(PromotionEntity entity){
         if (entity == null) {return null;}
         return PromotionDomain.builder()
-                .id(UUID.fromString(entity.getId()))
+                .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .status(entity.getStatus())
@@ -51,7 +51,8 @@ public class PromotionMapper {
     public static DayTemplateEntity toEntity (DayTemplateDomain domain) {
         if (domain == null) {return null;}
         return DayTemplateEntity.builder()
-                .id(domain.getId().toString())
+                // 3. No more .toString() needed!
+                .id(domain.getId())
                 .name(domain.getName())
                 .description(domain.getDescription())
                 .ruleJson(domain.getRuleJson())
@@ -63,7 +64,8 @@ public class PromotionMapper {
     public static DayTemplateDomain toDomain (DayTemplateEntity entity) {
         if (entity == null) {return null;}
         return DayTemplateDomain.builder()
-                .id(UUID.fromString(entity.getId()))
+                // 3. No more UUID.fromString() needed!
+                .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .ruleJson(entity.getRuleJson())

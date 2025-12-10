@@ -7,7 +7,7 @@
     <!-- ResultMap -->
     <resultMap id="PromotionResultMap"
                type="com.foodapp.promotion_service.persistence.entity.PromotionEntity">
-        <id property="id" column="id"/>
+        <id property="id" column="id" typeHandler="com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
         <result property="status" column="status"
@@ -20,7 +20,7 @@
         <result property="createdBy" column="created_by"/>
         <result property="reviewedBy" column="reviewed_by"/>
         <result property="publishedBy" column="published_by"/>
-        <result property="templateId" column="template_id"/>
+        <result property="templateId" column="template_id" typeHandler="com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler"/>
     </resultMap>
 
     <!-- SAVE -->
@@ -34,7 +34,7 @@
             template_id
         )
         VALUES (
-                   #{id},
+                   #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,
                    #{name},
                    #{description},
                    #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
@@ -46,7 +46,7 @@
                    #{createdBy},
                    #{reviewedBy},
                    #{publishedBy},
-                   #{templateId}
+                   #{templateId, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
                )
     </insert>
 
@@ -58,13 +58,13 @@
             <if test="description != null">description = #{description},</if>
             <if test="startDate != null">start_date = #{startDate},</if>
             <if test="endDate != null">end_date = #{endDate},</if>
-            <if test="templateId != null">template_id = #{templateId},</if>
+            <if test="templateId != null">template_id = #{templateId, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,</if>
             updated_at = NOW(),
             version = version + 1
         </set>
-        WHERE id = #{id}
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
         AND version = #{version}
-        AND status IN ('DRAFT', 'REJECTED')
+        AND status = 'PUBLISHED'
     </update>
 
     <!-- STATE TRANSITION -->
@@ -77,14 +77,15 @@
             updated_at = NOW(),
             version = version + 1
         </set>
-        WHERE id = #{id}
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
         AND status = #{expectedStatus}
         AND version = #{version}
     </update>
 
     <!-- FIND BY ID -->
     <select id="findById" resultMap="PromotionResultMap">
-        SELECT * FROM promotion WHERE id = #{id}
+        SELECT * FROM promotion
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </select>
 
     <!-- FIND ALL -->

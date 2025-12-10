@@ -12,13 +12,10 @@ public interface DayTemplateRepository {
 
     void create(DayTemplateEntity dayTemplateEntity);
 
-    DayTemplateEntity findById(@Param("id") String id);
+    // 2. Change parameter to UUID
+    DayTemplateEntity findById(@Param("id") UUID id);
 
     List<DayTemplateEntity> findAll();
-
-    //List<DayTemplateEntity> findByName(@Param("name") String name);
-
-    //List<DayTemplateEntity> findByCreatedBy(@Param("createdBy") String createdBy);
 
     List<DayTemplateEntity> search(
             @Param("name") String name,
@@ -31,7 +28,9 @@ public interface DayTemplateRepository {
 
     int partialUpdate (DayTemplateEntity entity);
 
-    int delete(String id);
+    // 2. Change parameter to UUID
+    int delete(UUID id);
 
-    boolean existsById(String id);
+    // 2. Change parameter to UUID
+    boolean existsById(UUID id);
 }

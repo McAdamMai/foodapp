@@ -19,3 +19,14 @@ flyway:
 
 server:
   port: 8901
+
+app:
+  security:
+    role-mappings:
+      REVIEWER:
+        - manager_bob
+        - manager_sara
+        - manager_atif
+      PUBLISHER:
+        - publisher_charlie
+        - publisher_adam

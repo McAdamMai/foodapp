@@ -30,7 +30,7 @@ public class PromotionDomain {
     private String createdBy;
     private String reviewedBy;
     private String publishedBy;
-    private String templateId;
+    private UUID templateId;
 
     // ========== FACTORY METHOD FOR CREATION ==========
     /**
@@ -44,7 +44,7 @@ public class PromotionDomain {
             LocalDate startDate,
             LocalDate endDate,
             String createdBy,
-            String templateId
+            UUID templateId
     ){
         LocalDateTime now = LocalDateTime.now();
         return PromotionDomain.builder()
@@ -116,11 +116,11 @@ public class PromotionDomain {
     }
 
     public void validateCanBePublished(String publishedBy) {
-        if (this.status != PromotionStatus.PUBLISHED) {
-            throw new IllegalStateException("Only PUBLISHED promotions can be published");
+        if (this.status != PromotionStatus.APPROVED) {
+            throw new IllegalStateException("Only APPROVED promotions can be published");
         }
 
-        if (!this.createdBy.equals(publishedBy)) {
+        if (this.createdBy.equals(publishedBy)) {
             throw new IllegalStateException("Only the publisher can publish this promotion");
         }
     }
@@ -129,7 +129,12 @@ public class PromotionDomain {
         if (this.status != PromotionStatus.PUBLISHED) {
             throw new IllegalStateException("Only PUBLISHED promotions can be rollbacked");
         }
-
         // should have identity check?
+    }
+
+    public void validateCanBeUpdated(String UpdatedBy){
+        if (this.status != PromotionStatus.PUBLISHED) {
+            throw new IllegalStateException("Only PUBLISH can be urgently updated");
+        }
     }
 }

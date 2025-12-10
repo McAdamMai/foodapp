@@ -20,7 +20,7 @@ public record PromotionDetailDtoResponse(
         String createdBy,
         String reviewedBy,
         String publishedBy,
-        String templateId
+        UUID templateId
 ) {
     public static PromotionDetailDtoResponse from(PromotionDomain domain) {
         return new PromotionDetailDtoResponse(
