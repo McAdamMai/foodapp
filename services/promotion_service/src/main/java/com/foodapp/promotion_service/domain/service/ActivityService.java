@@ -14,6 +14,8 @@ import com.foodapp.promotion_service.persistence.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.foodapp.promotion_service.domain.model.enums.AuditAction;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -83,7 +85,11 @@ public class ActivityService {
 
         eventPublisher.publishEvent(new com.foodapp.promotion_service.domain.event.PromotionChangedDomainEvent(
                 domain,
-                newDomain
+                newDomain,
+                request.updatedBy(),  // actor (userId)
+                null,                 // role (not available in this flow)
+                AuditAction.PROMOTION_UPDATE_DETAILS,  //business action
+                null                                   // FSM event (not applicable)
         ));
 
         return newDomain;
@@ -260,7 +266,13 @@ public class ActivityService {
         // 5. Publish the event so the Listener works
         eventPublisher.publishEvent(new com.foodapp.promotion_service.domain.event.PromotionChangedDomainEvent(
                 currentDomain,
-                updatedDomain
+                updatedDomain,
+                actor,                     // userId
+                userRole,                  // role
+                mapAuditAction(event),     // business audit action
+                event                      // FSM event
+
+
         ));
 
         // 6. Reload from DB to get the latest state (including new version)
@@ -301,5 +313,19 @@ public class ActivityService {
         }
 
         return builder.build();
+    }
+
+    /**
+     * Maps FSM events to high-level audit actions.
+     */
+    private AuditAction mapAuditAction(PromotionEvent event) {
+        return switch (event) {
+            case SUBMIT -> AuditAction.PROMOTION_SUBMIT;
+            case APPROVE -> AuditAction.PROMOTION_APPROVE;
+            case REJECT -> AuditAction.PROMOTION_REJECT;
+            case PUBLISH -> AuditAction.PROMOTION_PUBLISH;
+            case ROLLBACK -> AuditAction.PROMOTION_ROLLBACK;
+            case EDIT -> AuditAction.PROMOTION_UPDATE_DETAILS;
+        };
     }
 }

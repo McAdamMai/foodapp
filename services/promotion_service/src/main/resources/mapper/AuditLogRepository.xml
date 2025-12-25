@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodapp.promotion_service.persistence.repository.AuditLogRepository">
+
+    <insert id="insert"
+            parameterType="com.foodapp.promotion_service.persistence.entity.AuditLogEntity">
+        INSERT INTO audit_log (
+            id, entity_type, entity_id, action, actor, role,
+            entity_version, fsm_event, change_mask, before_json, after_json, created_at
+        ) VALUES (
+                     #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler},
+                     #{entityType},
+                     #{entityId, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler},
+                     #{action},
+                     #{actor},
+                     #{role},
+                     #{entityVersion},
+                     #{fsmEvent},
+                     #{changeMask, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonStringTypeHandler},
+                     #{beforeJson, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonStringTypeHandler},
+                     #{afterJson, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonStringTypeHandler},
+                     #{createdAt}
+                 )
+    </insert>
+
+</mapper>

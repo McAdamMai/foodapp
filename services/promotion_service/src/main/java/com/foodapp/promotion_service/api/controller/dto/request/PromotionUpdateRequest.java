@@ -22,7 +22,8 @@ public record PromotionUpdateRequest(
         LocalDate endDate,
         UUID templateId,
 
-        // Required field
+        // Required field：might be a root of potential bug if the
+        //audit log relies on "updateBy"
         String updatedBy
 ) {
 
