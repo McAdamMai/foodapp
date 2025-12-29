@@ -1,10 +1,13 @@
 package com.foodapp.promotion_service.api.controller.dto.request;
 
+import com.foodapp.promotion_service.domain.model.PromotionRules;
+import jakarta.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Future;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Builder
@@ -17,10 +20,16 @@ public record PromotionUpdateRequest(
         String description,
 
         @Future(message = "Start date must be in the future")
-        LocalDate startDate,
+        OffsetDateTime startDate,
 
-        LocalDate endDate,
+        OffsetDateTime endDate,
+        // Note: Changing templateId usually implies re-fetching rules,
+        // unless 'ruleJson' is also provided.
         UUID templateId,
+
+        // NEW: Allow full replacement of the rules
+        @Valid
+        PromotionRules ruleJson,
 
         // Required field：might be a root of potential bug if the
         //audit log relies on "updateBy"
@@ -36,7 +45,8 @@ public record PromotionUpdateRequest(
                 description != null ||
                 startDate != null ||
                 endDate != null ||
-                templateId != null;
+                templateId != null ||
+                ruleJson != null;
     }
 
     /**

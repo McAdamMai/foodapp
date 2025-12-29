@@ -5,6 +5,7 @@ import com.foodapp.promotion_service.api.controller.dto.request.TemplateUpdateRe
 import com.foodapp.promotion_service.domain.mapper.PromotionMapper;
 import com.foodapp.promotion_service.domain.model.DayTemplateDomain;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
+import com.foodapp.promotion_service.domain.model.PromotionRules;
 import com.foodapp.promotion_service.persistence.entity.DayTemplateEntity;
 import com.foodapp.promotion_service.persistence.repository.DayTemplateRepository;
 import com.foodapp.exception.TemplateNotFoundException;
@@ -25,7 +26,7 @@ public class TemplateService {
     public DayTemplateDomain create(
             String name,
             String description,
-            String ruleJson,
+            PromotionRules ruleJson,
             String createdBy
     ) {
         DayTemplateDomain newTemplate = DayTemplateDomain.createNewTemplate(name, description, ruleJson, createdBy);
@@ -82,9 +83,9 @@ public class TemplateService {
     private DayTemplateDomain loadDomain(UUID id) {
         return PromotionMapper.toDomain(
                 repo.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Template not found"))
         );
     }
-
     private DayTemplateEntity buildEntity(TemplateUpdateRequest request) {
         DayTemplateEntity.DayTemplateEntityBuilder builder = DayTemplateEntity.builder()
                 .id(request.getId());

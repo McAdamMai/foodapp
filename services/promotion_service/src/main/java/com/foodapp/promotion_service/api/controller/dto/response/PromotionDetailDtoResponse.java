@@ -5,6 +5,7 @@ import com.foodapp.promotion_service.fsm.PromotionStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record PromotionDetailDtoResponse(
@@ -12,10 +13,10 @@ public record PromotionDetailDtoResponse(
         String name,
         String description,
         PromotionStatus status,
-        LocalDate startDate,
-        LocalDate endDate,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        OffsetDateTime startDate,
+        OffsetDateTime endDate,
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt,
         int version,
         String createdBy,
         String reviewedBy,

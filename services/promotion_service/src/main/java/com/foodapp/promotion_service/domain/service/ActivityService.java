@@ -2,6 +2,11 @@ package com.foodapp.promotion_service.domain.service;
 
 import com.foodapp.promotion_service.api.controller.dto.request.PromotionUpdateRequest;
 import com.foodapp.promotion_service.domain.exception.OptimisticLockException;
+import com.foodapp.promotion_service.domain.exception.ResourceNotFoundException;
+import com.foodapp.promotion_service.domain.model.PromotionRules;
+import com.foodapp.promotion_service.persistence.entity.DayTemplateEntity;
+import com.foodapp.promotion_service.persistence.repository.DayTemplateRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher; // <--- Add this import
 import com.foodapp.promotion_service.domain.mapper.PromotionMapper;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
@@ -18,15 +23,18 @@ import com.foodapp.promotion_service.domain.model.enums.AuditAction;
 
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ActivityService {
     private final PromotionStateMachine promotionStateMachine;
     private final PromotionRepository promotionRepository;
     private final UserAuthorizationService authService;
+    private final DayTemplateRepository templateRepo;
 
     // Spring provides this automatically via Dependency Injection
     private final ApplicationEventPublisher eventPublisher;
@@ -35,21 +43,33 @@ public class ActivityService {
     public PromotionDomain create(
             String name,
             String description,
-            LocalDate startDate,
-            LocalDate endDate,
+            OffsetDateTime startDate,
+            OffsetDateTime endDate,
             String createdBy,
-            UUID temPlateId
-    ){
+            UUID templateId,
+            PromotionRules overrideRules
+    ) {
+        PromotionRules finalRules;
+        if (overrideRules != null) {
+            // CaseA: user tweaked the rules
+            finalRules = overrideRules;
+        }else{
+            DayTemplateEntity templateEntity = templateRepo.findById(templateId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Template not found: " + templateId));
+            finalRules = templateEntity.getRuleJson();
+        }
+        log.info("Rules set to : finalRules={}", finalRules);
         // add log for "log.info("Creating new promotion: name={}, createdBy={}", name, createdBy)"
         PromotionDomain newPromotion = PromotionDomain.createNew(
-                name, description, startDate, endDate, createdBy, temPlateId);
+                name, description, startDate, endDate, createdBy, templateId, finalRules);
         // no mappers are required because toEntity is set static (stateless)
         // static methods = shared tools, while instance methods = behavior tied to data.
         // instance belong to each object
         PromotionEntity entityToSave = PromotionMapper.toEntity(newPromotion);
         promotionRepository.save(entityToSave);
 
-        // add log for "log.info("Promotion created successfully: id={}", newPromotion.getId());"
+        // LOGGING STEP 2
+        log.info("Promotion created successfully: id={}", newPromotion.getId());
         return newPromotion;
     }
 

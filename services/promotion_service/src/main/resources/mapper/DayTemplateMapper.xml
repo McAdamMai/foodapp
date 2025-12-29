@@ -10,7 +10,8 @@
 
         <result property="name" column="name"/>
         <result property="description" column="description"/>
-        <result property="ruleJson" column="rule_json"/>
+        <result property="ruleJson" column="rule_json"
+                typeHandler="com.foodapp.promotion_service.persistence.typehandler.JsonPromotionRulesTypeHandler"/>
         <result property="createdBy" column="created_by"/>
         <result property="createdAt" column="created_at"/>
     </resultMap>
@@ -21,7 +22,7 @@
                    #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,
                    #{name},
                    #{description},
-                   #{ruleJson}::jsonb,
+                   #{ruleJson, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonPromotionRulesTypeHandler}::jsonb,
                    #{createdBy},
                    #{createdAt}
                )
@@ -32,18 +33,18 @@
         SET
             name = #{name},
             description = #{description},
-            rule_json = #{ruleJson}::jsonb
+            rule_json = #{ruleJson, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonPromotionRulesTypeHandler}::jsonb
         WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </update>
 
     <update id="partialUpdate">
         UPDATE day_template
         <set>
-            <trim suffixOverrides=",">
-                <if test="name != null"> name = #{name}, </if>
-                <if test="description != null"> description = #{description}, </if>
-                <if test="ruleJson != null"> rule_json = #{ruleJson}::jsonb, </if>
-            </trim>
+            <if test="name != null"> name = #{name}, </if>
+            <if test="description != null"> description = #{description}, </if>
+            <if test="ruleJson != null">
+                rule_json = #{ruleJson, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonPromotionRulesTypeHandler}::jsonb,
+            </if>
         </set>
         WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </update>

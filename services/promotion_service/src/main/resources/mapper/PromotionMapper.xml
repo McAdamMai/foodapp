@@ -21,6 +21,8 @@
         <result property="reviewedBy" column="reviewed_by"/>
         <result property="publishedBy" column="published_by"/>
         <result property="templateId" column="template_id" typeHandler="com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler"/>
+        <result property="rulesJson" column="rule_json"
+                typeHandler="com.foodapp.promotion_service.persistence.typehandler.JsonPromotionRulesTypeHandler"/>
     </resultMap>
 
     <!-- SAVE -->
@@ -31,7 +33,8 @@
             created_at, updated_at,
             version,
             created_by, reviewed_by, published_by,
-            template_id
+            template_id,
+            rule_json
         )
         VALUES (
                    #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,
@@ -46,7 +49,8 @@
                    #{createdBy},
                    #{reviewedBy},
                    #{publishedBy},
-                   #{templateId, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
+                   #{templateId, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,
+                   #{rulesJson, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonPromotionRulesTypeHandler}::jsonb
                )
     </insert>
 
@@ -58,6 +62,9 @@
             <if test="description != null">description = #{description},</if>
             <if test="startDate != null">start_date = #{startDate},</if>
             <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="rulesJson != null">
+                rule_json = #{rulesJson, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonPromotionRulesTypeHandler}::jsonb,
+            </if>
             <if test="templateId != null">template_id = #{templateId, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid,</if>
             updated_at = NOW(),
             version = version + 1

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Getter
@@ -16,17 +17,17 @@ public class DayTemplateDomain {
     private UUID id;
     private String name;
     private String description;
-    private String ruleJson;
+    private PromotionRules ruleJson;
     private String createBy;
-    private LocalDateTime createAt;
+    private OffsetDateTime createAt;
 
     // creator
     public static DayTemplateDomain createNewTemplate (
             String name,
             String description,
-            String ruleJson,
+            PromotionRules ruleJson,
             String createBy){
-            LocalDateTime now = LocalDateTime.now();
+            OffsetDateTime now = OffsetDateTime.now();
         return DayTemplateDomain.builder()
                 .id(UUID.randomUUID())
                 .name(name)

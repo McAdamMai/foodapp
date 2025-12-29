@@ -34,7 +34,9 @@ public class PromotionController {
                             dto.startDate(),
                             dto.endDate(),
                             dto.createdBy(),
-                            dto.templateId()));
+                            dto.templateId(),
+                            dto.rules())
+            );
         }
 
         // Get all the promotions

@@ -26,6 +26,7 @@ public class PromotionMapper {
                 .reviewedBy(domain.getReviewedBy())
                 .publishedBy(domain.getPublishedBy())
                 .templateId(domain.getTemplateId())
+                .rulesJson(domain.getJsonRules())
                 .build();
     }
 
@@ -45,6 +46,7 @@ public class PromotionMapper {
                 .reviewedBy(entity.getReviewedBy())
                 .publishedBy(entity.getPublishedBy())
                 .templateId(entity.getTemplateId())
+                .jsonRules(entity.getRulesJson())
                 .build();
     }
 

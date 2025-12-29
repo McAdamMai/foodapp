@@ -1,10 +1,12 @@
 package com.foodapp.promotion_service.persistence.entity;
 
+import com.foodapp.promotion_service.domain.model.PromotionRules;
 import com.foodapp.promotion_service.fsm.PromotionStatus;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
@@ -23,10 +25,10 @@ public class PromotionEntity {
     private String name;
     private String description;
     private PromotionStatus status; // enums
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private OffsetDateTime startDate;
+    private OffsetDateTime endDate;
+    private OffsetDateTime createAt;
+    private OffsetDateTime updateAt;
 
     // Optimistic lock field
     private int version;
@@ -35,6 +37,7 @@ public class PromotionEntity {
     private String reviewedBy;
     private String publishedBy;
     private UUID templateId;
+    private PromotionRules rulesJson;
     // missing scopeId
 
     /**

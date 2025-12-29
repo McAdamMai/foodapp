@@ -1,13 +1,14 @@
 package com.foodapp.promotion_service.api.controller.dto.response;
 
 import com.foodapp.promotion_service.domain.model.DayTemplateDomain;
+import com.foodapp.promotion_service.domain.model.PromotionRules;
 
 import java.util.UUID;
 
 public record TemplateDtoResponse(
         UUID id,
         String name,
-        String ruleJson,
+        PromotionRules ruleJson,
         String createdBy
 ) {
 

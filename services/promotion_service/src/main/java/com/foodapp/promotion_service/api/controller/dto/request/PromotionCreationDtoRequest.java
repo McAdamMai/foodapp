@@ -1,10 +1,13 @@
 package com.foodapp.promotion_service.api.controller.dto.request;
 
+import com.foodapp.promotion_service.domain.model.PromotionRules;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record PromotionCreationDtoRequest(
@@ -15,16 +18,21 @@ public record PromotionCreationDtoRequest(
 
         @NotNull(message = "Start date is required")
         @Future(message = "Start date must be in the future")
-        LocalDate startDate,
+        OffsetDateTime startDate,
 
         @NotNull(message = "End date is required")
-        LocalDate endDate,
+        OffsetDateTime endDate,
 
         @NotBlank(message = "Creator ID is required")
         String createdBy,
 
         @NotNull(message = "Template ID is required")
-        UUID templateId
+        UUID templateId,
+
+        // If null, service will fetch rules from 'templateId'.
+        // If present, service will use this directly (The "tweak scenario")
+        @Valid
+        PromotionRules rules
 ){
     // Validation
     public PromotionCreationDtoRequest {

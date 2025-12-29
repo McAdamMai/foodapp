@@ -10,6 +10,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Getter
@@ -21,16 +22,17 @@ public class PromotionDomain {
     private String name;
     private String description;
     private PromotionStatus status; // enums
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private OffsetDateTime startDate;
+    private OffsetDateTime endDate;
+    private OffsetDateTime createAt;
+    private OffsetDateTime updateAt;
     // Optimistic lock field
     private int version;
     private String createdBy;
     private String reviewedBy;
     private String publishedBy;
     private UUID templateId;
+    private PromotionRules jsonRules;
 
     // ========== FACTORY METHOD FOR CREATION ==========
     /**
@@ -41,12 +43,13 @@ public class PromotionDomain {
     public static PromotionDomain createNew(
             String name,
             String description,
-            LocalDate startDate,
-            LocalDate endDate,
+            OffsetDateTime startDate,
+            OffsetDateTime endDate,
             String createdBy,
-            UUID templateId
+            UUID templateId,
+            PromotionRules jsonRules
     ){
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
         return PromotionDomain.builder()
                 .id(UUID.randomUUID())
                 .name(name)
@@ -59,6 +62,7 @@ public class PromotionDomain {
                 .version(1)
                 .createdBy(createdBy)
                 .templateId(templateId)
+                .jsonRules(jsonRules)
                 .build();
     }
 
@@ -73,7 +77,7 @@ public class PromotionDomain {
     public PromotionDomain applyTransition(TransitionResult transitionResult) {
         PromotionDomainBuilder builder = this.toBuilder()
                 .status(transitionResult.getNewStatus())
-                .updateAt(LocalDateTime.now());
+                .updateAt(OffsetDateTime.now());
 
         // ✅ Clean, safe, modern
         switch (transitionResult.getEvent()) {
