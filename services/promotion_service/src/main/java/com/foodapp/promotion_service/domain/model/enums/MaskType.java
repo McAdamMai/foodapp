@@ -1,8 +1,10 @@
 package com.foodapp.promotion_service.domain.model.enums;
 
 public enum MaskType {
-    DATEs,
-    RULES,
+    DATES,
+    SCHEDULE,
+    PRIORITY,
+    EFFECT,
     META,
     STATUS,
 }

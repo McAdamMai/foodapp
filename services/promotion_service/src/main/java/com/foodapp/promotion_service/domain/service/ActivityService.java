@@ -74,6 +74,7 @@ public class ActivityService {
     }
 
     // only the publisher can do urgent update
+    // TODO: fix optimistic lock
     @Transactional
     public PromotionDomain updateDetails(PromotionUpdateRequest request){
         // validation: must have something to update
@@ -111,6 +112,8 @@ public class ActivityService {
                 AuditAction.PROMOTION_UPDATE_DETAILS,  //business action
                 null                                   // FSM event (not applicable)
         ));
+
+        log.info("Promotion updated successfully: id={}", newDomain.getId());
 
         return newDomain;
     }
@@ -285,14 +288,14 @@ public class ActivityService {
 
         // 5. Publish the event so the Listener works
         eventPublisher.publishEvent(new com.foodapp.promotion_service.domain.event.PromotionChangedDomainEvent(
+                // diff
                 currentDomain,
                 updatedDomain,
+                // audit
                 actor,                     // userId
                 userRole,                  // role
                 mapAuditAction(event),     // business audit action
                 event                      // FSM event
-
-
         ));
 
         // 6. Reload from DB to get the latest state (including new version)
@@ -327,6 +330,11 @@ public class ActivityService {
         if (request.endDate() != null) { // FIX 5: Change getEndDate() to endDate()
             builder.endDate(request.endDate());
         }
+
+        if (request.ruleJson() != null) {
+            builder.rulesJson((request.ruleJson()));
+        }
+
         if (request.templateId() != null) { // FIX 6: Change getTemplateId() to templateId()
             // The method signature uses UUID, and the accessor returns UUID. No casting needed.
             builder.templateId(request.templateId());

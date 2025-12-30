@@ -32,6 +32,7 @@ public class PromotionOutboxService {
                     payload.promotionId(),
                     payload.promotionVersion(),
                     changeMask,
+                    "PROMOTION_CHANGED",
                     json
             );
 

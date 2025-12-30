@@ -87,6 +87,7 @@ public class PromotionMapper {
                 .aggregateVersion(domain.getAggregateVersion())
                 .changeMask(domain.getChangeMask())
                 .payload(domain.getPayload())
+                .eventType(domain.getEventType())
                 .publishedAt(domain.getPublishedAt())
                 .build();
     }

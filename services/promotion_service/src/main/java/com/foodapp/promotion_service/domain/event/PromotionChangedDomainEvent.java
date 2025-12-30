@@ -17,7 +17,6 @@ public class PromotionChangedDomainEvent {
     private final PromotionDomain newPromotionDomain;
 
     // for audit log purpose
-
     private final String actor;
     private final UserRole role;
     private final AuditAction action;

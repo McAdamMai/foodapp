@@ -1,5 +1,6 @@
 package com.foodapp.promotion_service.api.controller;
 
+import com.foodapp.promotion_service.domain.model.PromotionRules;
 import com.foodapp.promotion_service.domain.model.enums.EventType;
 import com.foodapp.promotion_service.domain.model.enums.MaskType;
 
@@ -19,5 +20,6 @@ public record PromotionChangedEventPayload(
         // THE NEW STATE (The Source of Truth)
         OffsetDateTime startDate,
         OffsetDateTime endDate,
-        UUID templateId
+        UUID templateId,
+        PromotionRules rules
 ) { }
