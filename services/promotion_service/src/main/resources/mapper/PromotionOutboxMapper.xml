@@ -43,4 +43,19 @@
                    #{publishedAt}
                )
     </insert>
+
+    <update id="markAsPublished">
+        UPDATE promotion_box
+        SET published_at #{now}
+        WHERE id = {id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
+    </update>
+
+    <select id="findPendingBatch" resultMap="PromotionOutboxMap">
+        SELECT * FROM promotion_outbox
+        WHERE published_at IS NULL
+        ORDER BY id ASC
+        LIMIT #{batchSize}
+        FOR UPDATE SKIP LOCKED
+    </select>
+
 </mapper>

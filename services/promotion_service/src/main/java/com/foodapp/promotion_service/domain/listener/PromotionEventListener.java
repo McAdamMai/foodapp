@@ -14,7 +14,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class PromotionEventListener {
 
     private final OutboxEventEmitter outboxEventEmitter;
-
+    // transaction starts -> promotion save -> call listener -> outbox save -> commit
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void onPromotionChanged(PromotionChangedDomainEvent event) {
         log.info("Trigger Promotion Event");
