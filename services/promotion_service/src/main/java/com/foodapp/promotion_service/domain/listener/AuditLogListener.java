@@ -16,7 +16,7 @@ public class AuditLogListener {
 
     private final AuditLogService auditLogService;
 
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onPromotionChanged(PromotionChangedDomainEvent event) {
         auditLogService.savePromotionAudit(event);
     }

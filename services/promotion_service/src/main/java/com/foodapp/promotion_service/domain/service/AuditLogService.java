@@ -3,6 +3,7 @@ package com.foodapp.promotion_service.domain.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foodapp.promotion_service.domain.event.PromotionChangedDomainEvent;
+import com.foodapp.promotion_service.domain.model.PromotionRules;
 import com.foodapp.promotion_service.persistence.entity.AuditLogEntity;
 import com.foodapp.promotion_service.persistence.repository.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -94,6 +95,42 @@ public class AuditLogService {
             mask.add("DESCRIPTION");
         }
 
+        // --- E. Deep rule inspection (aligned with Outbox) ---
+        PromotionRules oldRules = oldP.getJsonRules();
+        PromotionRules newRules = newP.getJsonRules();
+
+        boolean ruleChanged = false;
+
+        // Schedule rules (time / recurrence)
+        if (!Objects.equals(
+                oldRules == null ? null : oldRules.getScheduleRules(),
+                newRules == null ? null :newRules.getScheduleRules()
+        )){
+            mask.add("RULE_SCHEDULE");
+            ruleChanged = true;
+        }
+
+        // Stacking / priority rules
+        if (!Objects.equals(
+                oldRules == null ? null : oldRules.getStackingRules(),
+                newRules == null ? null : newRules.getStackingRules()
+        )){
+            mask.add("RULE_PRIORITY");
+            ruleChanged = true;
+        }
+        // Effect / price rules
+        if (!Objects.equals(
+                oldRules == null ? null : oldRules.getEffect(),
+                newRules == null ? null : newRules.getEffect()
+        )){
+            mask.add("RULE_EFFECT");
+            ruleChanged = true;
+        }
+
+        // Aggregate rule marker
+        if (ruleChanged || mask.contains("TEMPLATE")){
+            mask.add("RULES");
+        }
         return mask;
     }
 
