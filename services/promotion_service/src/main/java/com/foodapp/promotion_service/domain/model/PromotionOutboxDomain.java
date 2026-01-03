@@ -45,7 +45,7 @@ public class PromotionOutboxDomain {
                 .changeMask(changeMask)
                 .eventType(eventType)
                 .payload(payload)
-                .publishedAt(now)
+                .publishedAt(null)
                 .build();
     }
 

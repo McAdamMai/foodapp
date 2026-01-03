@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        use = JsonTypeInfo.Id.NAME, // Use a Nickname, not the full legal name
+        include = JsonTypeInfo.As.EXISTING_PROPERTY, // The label is already part of the data. Don't add extra metadata.
         property = "type",
         visible = true
 )

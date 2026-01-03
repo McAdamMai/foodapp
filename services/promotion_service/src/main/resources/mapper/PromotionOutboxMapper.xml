@@ -45,9 +45,9 @@
     </insert>
 
     <update id="markAsPublished">
-        UPDATE promotion_box
-        SET published_at #{now}
-        WHERE id = {id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
+        UPDATE promotion_outbox
+        SET published_at = #{now}
+        WHERE id = #{id, typeHandler=com.foodapp.promotion_service.persistence.typehandler.UuidTypeHandler}::uuid
     </update>
 
     <select id="findPendingBatch" resultMap="PromotionOutboxMap">
