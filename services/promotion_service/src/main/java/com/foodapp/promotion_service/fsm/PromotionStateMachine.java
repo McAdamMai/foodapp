@@ -33,6 +33,7 @@ public class PromotionStateMachine {
     public TransitionResult validateTransition(PromotionDomain domain, PromotionEvent event, UserRole role, String actor){
 
         Transition validTransition = transitions.stream()
+                // If a legal transition or not
                 .filter(t -> t.matches(domain.getStatus(), event, role))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Invalid transition for status=" + domain.getStatus() + ", event=" + event + ", role=" + role));

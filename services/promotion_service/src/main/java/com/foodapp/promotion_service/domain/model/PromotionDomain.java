@@ -18,21 +18,24 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PromotionDomain {
+    // meta data
     private UUID id;
     private String name;
     private String description;
-    private PromotionStatus status; // enums
+    private String createdBy;
     private OffsetDateTime startDate;
     private OffsetDateTime endDate;
     private OffsetDateTime createAt;
     private OffsetDateTime updateAt;
-    // Optimistic lock field
-    private int version;
-    private String createdBy;
-    private String reviewedBy;
-    private String publishedBy;
     private UUID templateId;
     private PromotionRules jsonRules;
+    // Optimistic lock field
+    private int version;
+    // The change of this data must go through FSM
+    // The verification chain: domain.validate -> promotionStateMachine.validate -> domain.transition
+    private PromotionStatus status; // enums
+    private String reviewedBy;
+    private String publishedBy;
 
     // ========== FACTORY METHOD FOR CREATION ==========
     /**
@@ -79,7 +82,7 @@ public class PromotionDomain {
                 .status(transitionResult.getNewStatus())
                 .updateAt(OffsetDateTime.now());
 
-        // ✅ Clean, safe, modern
+        //  Clean, safe, modern
         switch (transitionResult.getEvent()) {
             case APPROVE, REJECT -> builder.reviewedBy(transitionResult.getActor());
             case PUBLISH -> builder.publishedBy(transitionResult.getActor());

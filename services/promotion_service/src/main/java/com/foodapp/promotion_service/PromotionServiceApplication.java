@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@MapperScan("com.foodapp.promotion_service.persistence.repository")
+//@MapperScan("com.foodapp.promotion_service.persistence.repository")
 @EnableScheduling
 public class PromotionServiceApplication {
     public static void main(String[] args) {
