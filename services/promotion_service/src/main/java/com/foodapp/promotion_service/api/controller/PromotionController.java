@@ -6,8 +6,8 @@ import com.foodapp.promotion_service.api.controller.dto.response.PromotionDetail
 import com.foodapp.promotion_service.api.controller.dto.response.PromotionSummaryDtoResponse;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.domain.service.ActivityService;
-import com.foodapp.promotion_service.fsm.PromotionEvent;
-import com.foodapp.promotion_service.fsm.UserRole;
+import com.foodapp.promotion_service.fsm.enums.PromotionEvent;
+import com.foodapp.promotion_service.fsm.enums.UserRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

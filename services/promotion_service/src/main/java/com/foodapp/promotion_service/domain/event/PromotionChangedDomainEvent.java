@@ -3,12 +3,9 @@ package com.foodapp.promotion_service.domain.event;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.domain.model.enums.AuditAction;
-import com.foodapp.promotion_service.fsm.PromotionEvent;
-import com.foodapp.promotion_service.fsm.UserRole;
-
-import java.util.UUID;
+import com.foodapp.promotion_service.fsm.enums.PromotionEvent;
+import com.foodapp.promotion_service.fsm.enums.UserRole;
 
 @Getter
 @RequiredArgsConstructor

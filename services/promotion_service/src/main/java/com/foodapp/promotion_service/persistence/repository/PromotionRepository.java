@@ -1,6 +1,6 @@
 package com.foodapp.promotion_service.persistence.repository;
 
-import com.foodapp.promotion_service.fsm.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
 import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

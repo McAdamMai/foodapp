@@ -1,10 +1,8 @@
 package com.foodapp.promotion_service.api.controller.dto.response;
 
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
-import com.foodapp.promotion_service.fsm.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 

@@ -1,6 +1,9 @@
 package com.foodapp.promotion_service.fsm;
 
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
+import com.foodapp.promotion_service.fsm.enums.PromotionEvent;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.UserRole;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

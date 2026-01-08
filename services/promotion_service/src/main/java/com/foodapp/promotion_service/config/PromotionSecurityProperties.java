@@ -1,11 +1,10 @@
 package com.foodapp.promotion_service.config;
 
-import com.foodapp.promotion_service.fsm.UserRole;
+import com.foodapp.promotion_service.fsm.enums.UserRole;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

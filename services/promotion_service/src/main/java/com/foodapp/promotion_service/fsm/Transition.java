@@ -1,9 +1,11 @@
 package com.foodapp.promotion_service.fsm;
 
+import com.foodapp.promotion_service.fsm.enums.PromotionEvent;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.UserRole;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter

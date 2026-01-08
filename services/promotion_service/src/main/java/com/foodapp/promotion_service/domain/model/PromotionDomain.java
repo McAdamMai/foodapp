@@ -1,15 +1,10 @@
 package com.foodapp.promotion_service.domain.model;
 
-import com.foodapp.promotion_service.domain.model.enums.ReviewDecision;
 import com.foodapp.promotion_service.exception.UnauthorizedException;
-import com.foodapp.promotion_service.fsm.PromotionEvent;
-import com.foodapp.promotion_service.fsm.PromotionStateMachine;
-import com.foodapp.promotion_service.fsm.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
 import com.foodapp.promotion_service.fsm.PromotionStateMachine.TransitionResult;
 import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 

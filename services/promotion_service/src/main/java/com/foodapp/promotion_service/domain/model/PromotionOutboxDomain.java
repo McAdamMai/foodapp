@@ -30,8 +30,8 @@ public class PromotionOutboxDomain {
      */
     // generate a domain from user's data
     public static PromotionOutboxDomain createOutbox(
-            UUID id,
-            UUID aggregateId,
+            UUID id, // message id
+            UUID aggregateId, // promotion id
             int aggregateVersion,
             List<String> changeMask,
             String eventType,

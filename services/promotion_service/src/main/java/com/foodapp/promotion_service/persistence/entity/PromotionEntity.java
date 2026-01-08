@@ -1,11 +1,9 @@
 package com.foodapp.promotion_service.persistence.entity;
 
 import com.foodapp.promotion_service.domain.model.PromotionRules;
-import com.foodapp.promotion_service.fsm.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
 import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 

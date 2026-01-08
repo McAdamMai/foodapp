@@ -4,11 +4,10 @@ import com.foodapp.promotion_service.api.controller.PromotionChangedEventPayload
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.domain.model.PromotionRules;
 import com.foodapp.promotion_service.domain.model.enums.MaskType;
-import com.foodapp.promotion_service.fsm.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

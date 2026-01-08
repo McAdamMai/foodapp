@@ -10,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher; // <--- Add this import
 import com.foodapp.promotion_service.domain.mapper.PromotionMapper;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
-import com.foodapp.promotion_service.fsm.PromotionEvent;
+import com.foodapp.promotion_service.fsm.enums.PromotionEvent;
 import com.foodapp.promotion_service.fsm.PromotionStateMachine;
-import com.foodapp.promotion_service.fsm.PromotionStatus;
-import com.foodapp.promotion_service.fsm.UserRole;
+import com.foodapp.promotion_service.fsm.enums.PromotionStatus;
+import com.foodapp.promotion_service.fsm.enums.UserRole;
 import com.foodapp.promotion_service.persistence.entity.PromotionEntity;
 import com.foodapp.promotion_service.persistence.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.foodapp.promotion_service.domain.model.enums.AuditAction;
 
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
