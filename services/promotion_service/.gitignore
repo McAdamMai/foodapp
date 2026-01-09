@@ -31,7 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-# PostgreSQL data directory
-replica-data/
-**/replica-data/
-
