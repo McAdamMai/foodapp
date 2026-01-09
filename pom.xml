@@ -13,8 +13,11 @@
 		<module>services/tag_service</module>
 		<module>services/home_bff_service</module>
 		<module>services/foodapp_contracts</module>
-        <module>services/promotion_expander</module>
-    </modules>
+		<module>services/promotion_expander</module>
+		<module>services/snapshot_writer</module>
+		<module>services/promotion_service</module>
+	</modules>
+
 	<properties>
 		<java.version>21</java.version>
 		<spring-boot.version>3.3.0</spring-boot.version>
