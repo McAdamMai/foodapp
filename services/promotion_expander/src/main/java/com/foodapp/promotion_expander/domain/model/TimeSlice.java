@@ -21,5 +21,4 @@ public class TimeSlice {
     private Instant start;
     private Instant end;
     private PromotionRules promotionRules;
-
 }

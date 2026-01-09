@@ -6,8 +6,6 @@ import com.foodapp.promotion_expander.domain.model.TimeSlice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
-import java.sql.Time;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -22,6 +20,7 @@ public class SlicingEngine {
     List<TimeSlice> expand(PromotionRules rules, Instant rangeStart, Instant rangeEnd, Instant horizonCap) {
 
         Objects.requireNonNull(rules, "PromotionRules cannot be null");
+        Objects.requireNonNull(rules.getSchedule(), "Schedule cannot be null");
         Objects.requireNonNull(rangeStart, "rangeStart cannot be null");
         Objects.requireNonNull(rangeEnd, "rangeEnd cannot be null");
 
@@ -49,10 +48,10 @@ public class SlicingEngine {
 
         // translate range into local time
         LocalDate startLocal = rangeStart.atZone(zone).toLocalDate();
-        LocalDate endLocal = rangeEnd.atZone(zone).toLocalDate();
+        LocalDate endLocal = effectiveEnd.atZone(zone).toLocalDate();
 
         // iterate over each day
-        for (LocalDate date = startLocal; date.isAfter(endLocal); date = date.plusDays(1)) {
+        for (LocalDate date = startLocal; !date.isAfter(endLocal); date = date.plusDays(1)) {
 
             // recurrence check
             if (!rules.getSchedule().getRecurrence().matches(date)) {
@@ -70,6 +69,7 @@ public class SlicingEngine {
 
                 if (window.getStartTime().isAfter(window.getEndTime())) {
                     log.warn("Skipping window with start/end times (start >= end) on date: " + date);
+                    continue;
                 }
 
                 ZonedDateTime zdtStart = ZonedDateTime.of(date, window.getStartTime(), zone);
@@ -78,14 +78,19 @@ public class SlicingEngine {
                 Instant sliceStart = zdtStart.toInstant();
                 Instant sliceEnd = zdtEnd.toInstant();
 
+                if (!sliceStart.isBefore(sliceEnd)) {
+                    log.warn("Skipping start time {} no earlier than end time {}: ",  sliceStart, sliceEnd);
+                    continue;
+                }
+
                 // clip to global bounds
-                if (sliceEnd.isBefore(rangeStart) || sliceStart.isAfter(rangeEnd)) {
+                if (sliceEnd.isBefore(rangeStart) || sliceStart.isAfter(effectiveEnd)) {
                     log.warn("Skipping out-of-bound window on date: " + date);
                     continue;
                 }
 
                 if (sliceStart.isBefore(rangeStart)) {sliceStart = rangeStart;}
-                if (sliceEnd.isAfter(rangeEnd)) {sliceEnd = rangeEnd;}
+                if (sliceEnd.isAfter(effectiveEnd)) {sliceEnd = effectiveEnd;}
 
                 TimeSlice timeSlice = TimeSlice.builder()
                         .date(date)

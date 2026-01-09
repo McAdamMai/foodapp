@@ -13,5 +13,5 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EffectRule {
     private String type; // e.g., "PERCENTAGE_OFF_ORDER"
-    private BigDecimal value;
+    private double value;
 }

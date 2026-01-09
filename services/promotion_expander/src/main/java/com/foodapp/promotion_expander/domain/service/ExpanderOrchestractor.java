@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -76,7 +77,7 @@ public class ExpanderOrchestractor {
         Instant horizontalCap = Instant.now().plus(horizontalDays, ChronoUnit.DAYS);
         PromotionRules rules = event.getRules();
 
-        List<TimeSlice> timeSlices = engine.expand(rules, horizontalCap, startDate, endDate);
+        List<TimeSlice> timeSlices = engine.expand(rules, startDate, endDate, horizontalCap);
 
         timeSlices.forEach(s -> {
             s.builder()
@@ -85,13 +86,25 @@ public class ExpanderOrchestractor {
                     .build();
         });
         // TBD Persistent
+        // repository.replaceSlicesForPromotion();
     }
 
     private void executeFastUpdate(ExpanderEvent event) {
-        log.info("Fast update rule");
+        // assume time slots are already correct in the DB
+
+        // extract the value
+        double newValue = event.getRules().getEffect().getValue();
+        String type = event.getRules().getEffect().getType();
+
+        // TBD persistence
+        // repository.updateSliceProperties();
+        log.info("Fast update rule to type: {} and value: {}", type, newValue);
     }
 
     private void executeDelete(ExpanderEvent event) {
-        log.info("Deleting expander event");
+        UUID promotionId = event.getPromotionId();
+        // TBD persistence
+        // repository.deleteByPromotionId();
+        log.info("Deleting expander event: {}", promotionId);
     }
 }

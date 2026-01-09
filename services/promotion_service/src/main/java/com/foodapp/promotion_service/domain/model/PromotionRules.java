@@ -57,7 +57,7 @@ public class PromotionRules {
     @AllArgsConstructor
     public static class Effect {
         private String type; // e.g., "PERCENTAGE_OFF_ORDER"
-        private BigDecimal value;
+        private double value;
     }
 
     @Data
