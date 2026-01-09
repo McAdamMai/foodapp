@@ -1,0 +1,18 @@
+app:
+  kafka:
+    topic: price-snapshot-interval-updates
+    groupId: snapshot-writer-group
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

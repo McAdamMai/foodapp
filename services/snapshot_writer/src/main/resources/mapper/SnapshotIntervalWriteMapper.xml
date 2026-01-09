@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodapp.snapshot_writer.persistence.SnapshotIntervalWriteRepository">
+
+    <insert id="upsert"
+            parameterType="com.foodapp.snapshot_writer.message.dto.PriceSnapshotIntervalUpsertedEvent">
+
+        INSERT INTO price_snapshot_interval (
+            tenant_id, store_id, sku_id, user_seg_id, channel_id, start_at_utc,
+            end_at_utc, discount_value
+        ) VALUES (
+                     #{tenantId},
+                     #{storeId},
+                     #{skuId},
+                     #{userSegId},
+                     #{channelId},
+                     #{startAtUtc},
+                     #{endAtUtc},
+                     #{discountValue}
+                 )
+            ON CONFLICT (tenant_id, store_id, sku_id, user_seg_id, channel_id, start_at_utc)
+        DO UPDATE SET
+            end_at_utc = EXCLUDED.end_at_utc,
+                           discount_value = EXCLUDED.discount_value
+
+    </insert>
+
+</mapper>
