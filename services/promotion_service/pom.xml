@@ -97,7 +97,6 @@
             <artifactId>flyway-database-postgresql</artifactId>
             <!-- No need to specify the version here; it's managed by the property above -->
         </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

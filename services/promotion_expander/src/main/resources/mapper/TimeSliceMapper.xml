@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodapp.promotion_expander.persistence.repository.TimeSliceRepository">
+
+    <resultMap id="TimeSliceMap"
+               type="com.foodapp.promotion_expander.persistence.entity.TimeSliceEntity">
+        <id property="id" column="id" typeHandler="com.foodapp.promotion_expander.persistence.typehandler.UuidTypeHandler"/>
+        <result property="promotionId" column="promotion_id" typeHandler="com.foodapp.promotion_expander.persistence.typehandler.UuidTypeHandler"/>
+        <result property="version" column="version"/>
+        <result property="sliceDate" column="slice_date"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="timezone" column="timezone"/>
+        <result property="effectType" column="effect_type"/>
+        <result property="effectValue" column="effect_value"/>
+    </resultMap>
+
+</mapper>

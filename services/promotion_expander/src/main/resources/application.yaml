@@ -1,2 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/expander_db
+    username: admin
+    password: promo123!
+    driver-class-name: org.postgresql.Driver
+
+mybatis:
+  type-aliases-package: com.foodapp.promotion_expander.persistence.entity
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+flyway:
+  enabled: true
+  baseline-on-migrate: true
+  locations: classpath:db/migration
+  validate-on-migrate: false  # Set to false temporarily for repair
+
 server:
-  port: 8901
+  port: 8902

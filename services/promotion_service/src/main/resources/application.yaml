@@ -21,7 +21,7 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 mybatis:
-  type-aliases-package: com.foodapp.promotion_service.domain.model
+  type-aliases-package: com.foodapp.promotion_service.persistence.entity
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
