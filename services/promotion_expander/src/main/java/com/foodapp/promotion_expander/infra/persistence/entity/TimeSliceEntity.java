@@ -1,4 +1,4 @@
-package com.foodapp.promotion_expander.persistence.entity;
+package com.foodapp.promotion_expander.infra.persistence.entity;
 
 import lombok.*;
 

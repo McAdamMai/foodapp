@@ -1,15 +1,17 @@
 package com.foodapp.promotion_expander.domain.service;
 
-import com.foodapp.promotion_expander.domain.model.EffectRule;
 import com.foodapp.promotion_expander.domain.model.ExpanderEvent;
 import com.foodapp.promotion_expander.domain.model.PromotionRules;
 import com.foodapp.promotion_expander.domain.model.TimeSlice;
 import com.foodapp.promotion_expander.domain.model.enums.ExpanderAction;
 import com.foodapp.promotion_expander.domain.model.enums.MaskType;
+import com.foodapp.promotion_expander.infra.persistence.entity.TimeSliceEntity;
+import com.foodapp.promotion_expander.infra.persistence.repository.TimeSliceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,10 +21,11 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ExpanderOrchestractor {
+public class ExpanderOrchestrator {
 
     // private ExpanderRepostitory repository;
     private final SlicingEngine engine;
+    private final TimeSliceRepository repo;
 
     // The Rolling Horizon Strategy
     @Value("${expander.horizontal-days:90}")
@@ -69,8 +72,10 @@ public class ExpanderOrchestractor {
         return ExpanderAction.FULL_REBUILD;
     }
 
-    // Instant are used to do comparison
-    private void executeRebuild(ExpanderEvent event) {
+    // Transactional is called by Spring, is it is set to private, it can not be called
+    // protected is sitting b/w private and public
+    @Transactional
+    protected void executeRebuild(ExpanderEvent event) {
         log.info("Rebuilding expander event");
         Instant startDate = event.getStartDateTime().toInstant();
         Instant endDate = event.getEndDateTime().toInstant();
@@ -79,32 +84,51 @@ public class ExpanderOrchestractor {
 
         List<TimeSlice> timeSlices = engine.expand(rules, startDate, endDate, horizontalCap);
 
-        timeSlices.forEach(s -> {
-            s.builder()
-                    .promotionId(event.getPromotionId())
-                    .version(event.getVersion())
-                    .build();
-        });
-        // TBD Persistent
-        // repository.replaceSlicesForPromotion();
+        List<TimeSliceEntity> entities = timeSlices.stream()
+                .map(this::domainToEntity)
+                .toList();
+        if(!entities.isEmpty()){
+            repo.deleteSlicesByPromotionId(event.getPromotionId());
+            repo.insertBatch(entities);
+            log.info("Replace {} slices", entities.size());
+        }
     }
 
-    private void executeFastUpdate(ExpanderEvent event) {
-        // assume time slots are already correct in the DB
-
-        // extract the value
-        double newValue = event.getRules().getEffect().getValue();
+    @Transactional
+    protected void executeFastUpdate(ExpanderEvent event) {
+        UUID promotionId = event.getPromotionId();
         String type = event.getRules().getEffect().getType();
+        double newValue = event.getRules().getEffect().getValue();
 
-        // TBD persistence
-        // repository.updateSliceProperties();
+        TimeSliceEntity changes = new TimeSliceEntity();
+        changes.setEffectType(type);
+        changes.setEffectValue(newValue);
+
+        repo.updateContentByPromotionId(promotionId, changes);
+
         log.info("Fast update rule to type: {} and value: {}", type, newValue);
     }
 
-    private void executeDelete(ExpanderEvent event) {
+    @Transactional
+    protected void executeDelete(ExpanderEvent event) {
         UUID promotionId = event.getPromotionId();
-        // TBD persistence
-        // repository.deleteByPromotionId();
+
+        repo.deleteSlicesByPromotionId(promotionId);
+
         log.info("Deleting expander event: {}", promotionId);
+    }
+
+    private TimeSliceEntity domainToEntity(TimeSlice slice) {
+        return TimeSliceEntity.builder()
+                .id(UUID.randomUUID())
+                .promotionId(slice.getPromotionId())
+                .version(slice.getVersion())
+                .sliceDate(slice.getDate())
+                .startTime(slice.getStart())
+                .endTime(slice.getEnd())
+                .timezone(slice.getPromotionRules().getSchedule().getTimezone())
+                .effectType(slice.getPromotionRules().getEffect().getType())
+                .effectValue(slice.getPromotionRules().getEffect().getValue())
+                .build();
     }
 }

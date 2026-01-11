@@ -1,6 +1,10 @@
 package com.foodapp.promotion_service.domain.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.foodapp.promotion_service.domain.model.DayTemplateDomain;
+import com.foodapp.promotion_service.domain.model.PromotionChangedEventPayload;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.domain.model.PromotionOutboxDomain;
 import com.foodapp.promotion_service.persistence.entity.DayTemplateEntity;
@@ -10,6 +14,10 @@ import com.foodapp.promotion_service.persistence.entity.PromotionOutboxEntity;
 import java.util.UUID;
 
 public class PromotionMapper {
+
+    private static final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
+
     public static PromotionEntity toEntity(PromotionDomain domain) {
         if (domain == null) {return null;}
         return PromotionEntity.builder()
@@ -81,13 +89,20 @@ public class PromotionMapper {
             return null;
         }
 
+        // serialize payload here
+        String json;
+        try {
+            json = mapper.writeValueAsString(domain.getPayload());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Serialization failed", e);
+        }
+
         return PromotionOutboxEntity.builder()
                 .id(domain.getId())
                 .aggregateId(domain.getAggregateId())
                 .aggregateVersion(domain.getAggregateVersion())
                 .changeMask(domain.getChangeMask())
-                .payload(domain.getPayload())
-                .eventType(domain.getEventType())
+                .payload(json)
                 .publishedAt(domain.getPublishedAt())
                 .build();
     }
@@ -97,12 +112,19 @@ public class PromotionMapper {
             return null;
         }
 
+        PromotionChangedEventPayload payload;
+        try{
+            payload = mapper.readValue(entity.getPayload(), PromotionChangedEventPayload.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to deserialize outbox payload", e);
+        }
+
         return PromotionOutboxDomain.builder()
                 .id(entity.getId())
                 .aggregateId(entity.getAggregateId())
                 .aggregateVersion(entity.getAggregateVersion())
                 .changeMask(entity.getChangeMask())
-                .payload(entity.getPayload())
+                .payload(payload)
                 .publishedAt(entity.getPublishedAt())
                 .build();
     }

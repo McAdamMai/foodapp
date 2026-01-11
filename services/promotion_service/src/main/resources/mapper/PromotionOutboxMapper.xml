@@ -13,8 +13,8 @@
         <result property="aggregateVersion" column="aggregate_version"/>
 
         <result property="changeMask" column="change_mask" jdbcType="OTHER" typeHandler="com.foodapp.promotion_service.persistence.typehandler.JsonListTypeHandler"/>
-        <result property="eventType" column="event_type"/>
         <result property="payload" column="payload" jdbcType="OTHER" typeHandler="com.foodapp.promotion_service.persistence.typehandler.JsonStringTypeHandler"/>
+        <result property="occurredAt" column="occurred_at"/>
         <result property="publishedAt" column="published_at"/>
     </resultMap>
 
@@ -24,7 +24,6 @@
             aggregate_id,
             aggregate_version,
             change_mask,
-            event_type,
             payload,
             published_at
         )
@@ -35,8 +34,6 @@
                    #{aggregateVersion},
 
                    #{changeMask, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonListTypeHandler}::jsonb,
-
-                   #{eventType},
 
                    #{payload, typeHandler=com.foodapp.promotion_service.persistence.typehandler.JsonStringTypeHandler}::jsonb,
 

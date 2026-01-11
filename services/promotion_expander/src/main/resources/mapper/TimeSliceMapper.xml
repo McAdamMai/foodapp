@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.foodapp.promotion_expander.persistence.repository.TimeSliceRepository">
+<mapper namespace="com.foodapp.promotion_expander.infra.persistence.repository.TimeSliceRepository">
 
-    <resultMap id="TimeSliceMap"
-               type="com.foodapp.promotion_expander.persistence.entity.TimeSliceEntity">
-        <id property="id" column="id" typeHandler="com.foodapp.promotion_expander.persistence.typehandler.UuidTypeHandler"/>
-        <result property="promotionId" column="promotion_id" typeHandler="com.foodapp.promotion_expander.persistence.typehandler.UuidTypeHandler"/>
+    <resultMap id="TimeSliceMap" type="TimeSliceEntity">
+        <id property="id" column="id"/>
+        <result property="promotionId" column="promotion_id"/>
+
         <result property="version" column="version"/>
         <result property="sliceDate" column="slice_date"/>
         <result property="startTime" column="start_time"/>
@@ -17,4 +17,47 @@
         <result property="effectValue" column="effect_value"/>
     </resultMap>
 
+    <insert id="insertBatch">
+        INSERT into time_slice (
+        id, promotion_id, version,
+        slice_date, start_time, end_time,
+        timezone, effect_type, effect_value
+        ) VALUES
+        <foreach collection="slices" item="slice" separator=",">
+            (
+            #{slice.id},          #{slice.promotionId}, #{slice.version},
+            #{slice.sliceDate},
+            #{slice.startTime},
+            #{slice.endTime},
+            #{slice.timezone},
+            #{slice.effectType},
+            #{slice.effectValue}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateContentByPromotionId">
+        UPDATE time_slice
+        <set>
+            <if test="updateParams.version != null">
+                version = #{updateParams.version},
+            </if>
+            <if test="updateParams.effectType != null">
+                effect_type = #{updateParams.effectType},
+            </if>
+            <if test="updateParams.effectValue != null">
+                effect_value = #{updateParams.effectValue},
+            </if>
+        </set>
+        WHERE promotion_id = #{promotionId} </update>
+
+    <delete id="deleteSlicesByPromotionId">
+        DELETE FROM time_slice
+        WHERE promotion_id = #{promotionId}
+    </delete>
+
+    <select id="findByPromotionId">
+        SELECT * FROM time_slice
+        WHERE promotion_id = #{promotionId}
+    </select>
 </mapper>

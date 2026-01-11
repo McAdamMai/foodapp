@@ -2,7 +2,7 @@ package com.foodapp.promotion_service.message;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.foodapp.promotion_service.api.controller.PromotionChangedEventPayload;
+import com.foodapp.promotion_service.domain.model.PromotionChangedEventPayload;
 import com.foodapp.promotion_service.domain.model.enums.MaskType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

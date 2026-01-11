@@ -8,6 +8,7 @@ spring:
     # FIX: Change '9092' to 'localhost:9092'
     bootstrap-servers: localhost:9092
 
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer

@@ -1,6 +1,6 @@
 package com.foodapp.promotion_service.domain.service;
 
-import com.foodapp.promotion_service.api.controller.PromotionChangedEventPayload;
+import com.foodapp.promotion_service.domain.model.PromotionChangedEventPayload;
 import com.foodapp.promotion_service.domain.model.PromotionDomain;
 import com.foodapp.promotion_service.domain.model.PromotionRules;
 import com.foodapp.promotion_service.domain.model.enums.MaskType;
@@ -15,7 +15,9 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class OutboxEventEmitter {
+// use to generate the outbox msg, trigger by a listener which listens to any changes in promotion
+// call promotionOutboxService to save it to db
+public class OutboxEventEmitter { // use to generate the outbox msg, trigger by a listener which listens to any changes in promotion
 
     private final PromotionOutboxService promotionOutboxService;
 

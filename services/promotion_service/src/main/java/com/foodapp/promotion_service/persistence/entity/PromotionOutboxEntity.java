@@ -15,7 +15,6 @@ public class PromotionOutboxEntity {
     private UUID id;
     private UUID aggregateId;
     private int aggregateVersion;
-    private String eventType;
     private List<String> changeMask;
     private String payload;
     private Instant occurredAt;

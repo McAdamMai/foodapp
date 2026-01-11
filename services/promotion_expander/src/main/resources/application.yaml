@@ -5,8 +5,25 @@ spring:
     password: promo123!
     driver-class-name: org.postgresql.Driver
 
+  kafka:
+    # FIX: Change '9092' to 'localhost:9092'
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: promotion-expander-group
+      # latest is for Real-Time Dashboards & Metrics/Transient Notifications/High-Volume Log Sampling
+      # earliest ensure the integrity of data
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        # Crucial: Allow Jackson to deserialize your specific package
+        spring.json.trusted.packages: "com.foodapp.promotion_expander.domain.model"
+
+
+
 mybatis:
-  type-aliases-package: com.foodapp.promotion_expander.persistence.entity
+  type-aliases-package: com.foodapp.promotion_expander.infra.persistence.entity
+  type-handlers-package: com.foodapp.promotion_expander.infra.persistence.typehandler
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
@@ -19,3 +36,9 @@ flyway:
 
 server:
   port: 8902
+
+app:
+  kafka:
+    topics:
+      promotion-updates: promotion-updates # Define topic name here
+      concurrency: 3

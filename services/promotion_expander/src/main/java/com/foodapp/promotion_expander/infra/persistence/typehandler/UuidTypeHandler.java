@@ -1,5 +1,6 @@
-package com.foodapp.promotion_expander.persistence.typehandler;
+package com.foodapp.promotion_expander.infra.persistence.typehandler;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+@Alias("UuidTypeHandler")
 public class UuidTypeHandler extends BaseTypeHandler<UUID> {
 
     @Override

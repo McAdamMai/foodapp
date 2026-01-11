@@ -41,12 +41,12 @@ CREATE TABLE promotion_outbox (
                                   aggregate_version INT,      -- Helpful for debugging race conditions
 
     -- I kept event_type! It is highly recommended for the Poller to filter messages quickly.
-                                  event_type TEXT NOT NULL,
+                                  -- event_type TEXT NOT NULL,
 
                                   change_mask JSONB,          -- Fixed typo from 'chang_mask'
                                   payload JSONB NOT NULL,     -- The massive "ActivityDefinition" JSON
 
-                                  created_at TIMESTAMPTZ DEFAULT NOW(), -- Replaced 'occurred_at' with standard naming
+                                  occurred_at TIMESTAMPTZ DEFAULT NOW(), -- Replaced 'occurred_at' with standard naming
                                   published_at TIMESTAMPTZ    -- NULL means "Pending", Not Null means "Sent"
 );
 
@@ -68,5 +68,5 @@ CREATE TABLE audit_log (
 
 -- Indexes for performance
 CREATE INDEX idx_promotion_status ON promotion(status);
-CREATE INDEX idx_outbox_pending ON promotion_outbox(created_at) WHERE published_at IS NULL;
+CREATE INDEX idx_outbox_pending ON promotion_outbox(occurred_at) WHERE published_at IS NULL;
 CREATE INDEX idx_audit_log_entity ON audit_log(entity_type, entity_id);
