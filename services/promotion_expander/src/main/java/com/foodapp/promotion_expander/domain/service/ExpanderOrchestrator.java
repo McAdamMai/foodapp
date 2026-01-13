@@ -33,6 +33,9 @@ public class ExpanderOrchestrator {
     @Value("${expander.horizontal-days:90}")
     private int horizontalDays;
 
+    @Value("${app.service.batch-size:1000}")
+    private int batchSize;
+
     // Any internal calls (like this.executeRebuild) will then inherit and participate in that existing transaction
     @Transactional
     public void processEvent(ExpanderEvent event) {
@@ -95,14 +98,27 @@ public class ExpanderOrchestrator {
 
         List<TimeSlice> timeSlices = engine.expand(rules, startDate, endDate, horizontalCap);
 
+        // early exit
+        if (timeSlices.isEmpty()) {
+            // repo.deleteSlicesByPromotionId(event.getPromotionId());
+            return;
+        }
+
         List<TimeSliceEntity> entities = timeSlices.stream()
                 .map(this::domainToEntity)
                 .toList();
-        if(!entities.isEmpty()){
-            repo.deleteSlicesByPromotionId(event.getPromotionId());
-            repo.insertBatch(entities);
-            log.info("Replace {} slices", entities.size());
+
+        for(int i = 0; i < entities.size(); i+=batchSize) {
+            int end = Math.min(entities.size(), i + batchSize);
+            List<TimeSliceEntity> batch = entities.subList(i, end);
+
+            repo.insertBatch(batch);
+
+            log.info("Insert {} slices {} - {}", batch.size(), i, end);
         }
+
+        log.info("Successfully replaced {} slices", entities.size());
+
     }
 
     private void executeFastUpdate(ExpanderEvent event) {

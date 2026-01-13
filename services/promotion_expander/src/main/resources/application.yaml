@@ -42,3 +42,5 @@ app:
     topics:
       promotion-updates: promotion-updates # Define topic name here
       concurrency: 3
+  service:
+    batch-size: 1000
