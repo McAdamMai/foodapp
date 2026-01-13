@@ -6,6 +6,7 @@ import com.foodapp.promotion_expander.domain.model.TimeSlice;
 import com.foodapp.promotion_expander.domain.model.enums.ExpanderAction;
 import com.foodapp.promotion_expander.domain.model.enums.MaskType;
 import com.foodapp.promotion_expander.infra.persistence.entity.TimeSliceEntity;
+import com.foodapp.promotion_expander.infra.persistence.repository.ExpanderTrackerRepository;
 import com.foodapp.promotion_expander.infra.persistence.repository.TimeSliceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +27,23 @@ public class ExpanderOrchestrator {
     // private ExpanderRepostitory repository;
     private final SlicingEngine engine;
     private final TimeSliceRepository repo;
+    private final ExpanderTrackerRepository tracker;
 
     // The Rolling Horizon Strategy
     @Value("${expander.horizontal-days:90}")
     private int horizontalDays;
 
+    // Any internal calls (like this.executeRebuild) will then inherit and participate in that existing transaction
+    @Transactional
     public void processEvent(ExpanderEvent event) {
+
+        int isNewer = tracker.updateVersionIfNewer(event.getPromotionId(), event.getVersion());
+
+        if (isNewer == 0) {
+            log.warn("Stale or Duplicate event received. Promotion: {}, Version: {}. Ignoring.",
+                    event.getPromotionId(), event.getVersion());
+            return;
+        }
 
         // determine the action
         ExpanderAction action = determineAction(event);
@@ -74,8 +86,7 @@ public class ExpanderOrchestrator {
 
     // Transactional is called by Spring, is it is set to private, it can not be called
     // protected is sitting b/w private and public
-    @Transactional
-    protected void executeRebuild(ExpanderEvent event) {
+    private void executeRebuild(ExpanderEvent event) {
         log.info("Rebuilding expander event");
         Instant startDate = event.getStartDateTime().toInstant();
         Instant endDate = event.getEndDateTime().toInstant();
@@ -94,8 +105,7 @@ public class ExpanderOrchestrator {
         }
     }
 
-    @Transactional
-    protected void executeFastUpdate(ExpanderEvent event) {
+    private void executeFastUpdate(ExpanderEvent event) {
         UUID promotionId = event.getPromotionId();
         String type = event.getRules().getEffect().getType();
         double newValue = event.getRules().getEffect().getValue();
@@ -109,8 +119,7 @@ public class ExpanderOrchestrator {
         log.info("Fast update rule to type: {} and value: {}", type, newValue);
     }
 
-    @Transactional
-    protected void executeDelete(ExpanderEvent event) {
+    private void executeDelete(ExpanderEvent event) {
         UUID promotionId = event.getPromotionId();
 
         repo.deleteSlicesByPromotionId(promotionId);

@@ -10,5 +10,12 @@ CREATE TABLE time_slice (
                             effect_value DOUBLE PRECISION NOT NULL
 );
 
+CREATE TABLE expander_tracker (
+                                  promotion_id UUID PRIMARY KEY,
+                                  last_processed_version INT NOT NULL,
+                                  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- CRITICAL: We almost always query/delete by promotion_id
 CREATE INDEX idx_time_slice_promotion_id ON time_slice(promotion_id);
+

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.foodapp.promotion_expander.infra.persistence.repository.ExpanderTrackerRepository">
+    <resultMap id="ExpanderTrackerMapper" type="ExpanderTrackerEntity">
+        <id property="promotionId" column="promotion_id"/>
+        <result property="lastProcessedVersion" column="last_processed_version"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="updateVersionIfNewer">
+        INSERT INTO expander_tracker (
+            promotion_id,
+            last_processed_version,
+            updated_at
+        )
+        VALUES (
+            #{promotionId},
+            #{newVersion},
+            NOW()
+        )
+        ON CONFLICT (promotion_id)
+        DO UPDATE SET
+            last_processed_version = #{newVersion},
+            updated_at= NOW()
+        WHERE expander_tracker.last_processed_version &lt; #{newVersion}
+    </insert>
+</mapper>

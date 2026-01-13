@@ -1,4 +1,4 @@
-package com.foodapp.promotion_expander.infra.persistence.repository.repository;
+package com.foodapp.promotion_expander.infra.persistence.repository;
 
 import com.foodapp.promotion_expander.infra.persistence.entity.TimeSliceEntity;
 import com.foodapp.promotion_expander.infra.persistence.repository.TimeSliceRepository;
