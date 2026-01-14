@@ -13,7 +13,11 @@ CREATE TABLE time_slice (
 CREATE TABLE expander_tracker (
                                   promotion_id UUID PRIMARY KEY,
                                   last_processed_version INT NOT NULL,
-                                  updated_at TIMESTAMPTZ DEFAULT NOW()
+                                  updated_at TIMESTAMPTZ DEFAULT NOW(),
+                                  valid_start TIMESTAMP WITH TIME ZONE NOT NULL,
+                                  valid_end TIMESTAMP WITH TIME ZONE NOT NULL,
+                                  cover_until TIMESTAMP WITH TIME ZONE NOT NULL,
+                                  status TEXT NOT NULL
 );
 
 -- CRITICAL: We almost always query/delete by promotion_id

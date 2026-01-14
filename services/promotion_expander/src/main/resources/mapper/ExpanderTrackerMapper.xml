@@ -7,23 +7,39 @@
         <id property="promotionId" column="promotion_id"/>
         <result property="lastProcessedVersion" column="last_processed_version"/>
         <result property="updatedAt" column="updated_at"/>
+        <result property="validStart" column="valid_start"/>
+        <result property="validEnd" column="valid_end"/>
+        <result property="coveredUntil" column="covered_until"/>
+        <result property="status" column="status"/>
     </resultMap>
 
     <insert id="updateVersionIfNewer">
         INSERT INTO expander_tracker (
             promotion_id,
             last_processed_version,
-            updated_at
+            updated_at,
+            valid_start,
+            valid_end,
+            covered_until,
+            status
         )
         VALUES (
             #{promotionId},
             #{newVersion},
-            NOW()
+            NOW(),
+            #{validStart},
+            #{validEnd},
+            #{coveredUntil},
+            #{status}
         )
         ON CONFLICT (promotion_id)
         DO UPDATE SET
             last_processed_version = #{newVersion},
-            updated_at= NOW()
+            updated_at= NOW(),
+            valid_start = #{validStart},
+            valid_end = #{validEnd},
+            covered_until = #{coveredUntil},
+            status = #{status}
         WHERE expander_tracker.last_processed_version &lt; #{newVersion}
     </insert>
 </mapper>
