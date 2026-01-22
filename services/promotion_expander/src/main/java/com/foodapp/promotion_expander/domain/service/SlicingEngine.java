@@ -11,13 +11,12 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.List;
 
 @Slf4j
 @Service
 public class SlicingEngine {
 
-    List<TimeSlice> expand(PromotionRules rules, Instant rangeStart, Instant rangeEnd, Instant horizonCap) {
+    List<TimeSlice> expand(PromotionRules rules, LocalDate rangeStart, LocalDate rangeEnd, Instant clipStart, Instant clipEnd) {
 
         Objects.requireNonNull(rules, "PromotionRules cannot be null");
         Objects.requireNonNull(rules.getSchedule(), "Schedule cannot be null");
@@ -26,11 +25,6 @@ public class SlicingEngine {
 
         if (rangeStart.isAfter(rangeEnd)) {
             throw new IllegalArgumentException("rangeStart cannot be after rangeEnd");
-        }
-
-        Instant effectiveEnd = rangeEnd;
-        if (horizonCap != null && horizonCap.isBefore(effectiveEnd)) {
-            effectiveEnd = horizonCap;
         }
 
         // initialize res
@@ -46,12 +40,9 @@ public class SlicingEngine {
             throw new IllegalArgumentException("Invalid timezone in schedule", e);
         }
 
-        // translate range into local time
-        LocalDate startLocal = rangeStart.atZone(zone).toLocalDate();
-        LocalDate endLocal = effectiveEnd.atZone(zone).toLocalDate();
 
         // iterate over each day
-        for (LocalDate date = startLocal; !date.isAfter(endLocal); date = date.plusDays(1)) {
+        for (LocalDate date = rangeStart; !date.isAfter(rangeEnd); date = date.plusDays(1)) {
 
             // recurrence check
             if (!rules.getSchedule().getRecurrence().matches(date)) {
@@ -61,7 +52,12 @@ public class SlicingEngine {
 
             // expander the windows
             // iterate over the windows
-            for(IntraDayWindow window: Optional.ofNullable(rules.getSchedule().getIntradayWindows()).orElse(Collections.emptyList())){
+            List<IntraDayWindow> windows = rules.getSchedule().getIntradayWindows();
+            if (windows == null || windows.isEmpty()) {
+                log.warn("No intraday windows defined for promotion");
+                return Collections.emptyList();
+            }
+            for(IntraDayWindow window : windows) {
                 if (window.getStartTime() == null || window.getEndTime() == null) {
                     log.warn("Skipping window with null start/end times on date: " + date);
                     continue;
@@ -78,19 +74,11 @@ public class SlicingEngine {
                 Instant sliceStart = zdtStart.toInstant();
                 Instant sliceEnd = zdtEnd.toInstant();
 
-                if (!sliceStart.isBefore(sliceEnd)) {
-                    log.warn("Skipping start time {} no earlier than end time {}: ",  sliceStart, sliceEnd);
-                    continue;
-                }
+                if(sliceEnd.isBefore(clipStart) || sliceStart.isAfter(clipEnd)) {continue;}
+                if(sliceStart.isBefore(clipStart)) {sliceStart = clipStart;}
+                if(sliceEnd.isAfter(clipEnd)) {sliceEnd = clipEnd;}
 
-                // clip to global bounds
-                if (sliceEnd.isBefore(rangeStart) || sliceStart.isAfter(effectiveEnd)) {
-                    log.warn("Skipping out-of-bound window on date: " + date);
-                    continue;
-                }
-
-                if (sliceStart.isBefore(rangeStart)) {sliceStart = rangeStart;}
-                if (sliceEnd.isAfter(effectiveEnd)) {sliceEnd = effectiveEnd;}
+                if (!sliceStart.isBefore(sliceEnd)) continue;
 
                 TimeSlice timeSlice = TimeSlice.builder()
                         .date(date)

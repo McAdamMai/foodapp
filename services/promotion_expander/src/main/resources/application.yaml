@@ -44,3 +44,4 @@ app:
       concurrency: 3
   service:
     batch-size: 1000
+    day-buffer: 1
