@@ -133,6 +133,7 @@ public class ExpanderOrchestrator {
         }
 
         // THE BRIDGE: UTC -> Local Buffer Strategy, ensure no promotion will be missed
+        // TBD: using the previous endUTC to compute the range
         LocalDate rangeStart = startUTC.minusDays(TIMEZONE_BUFFER_DAYS);
         LocalDate rangeEnd = coveredUntil.plusDays(TIMEZONE_BUFFER_DAYS);
 

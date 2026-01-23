@@ -52,12 +52,22 @@
            WHERE expander_tracker.last_processed_version &lt; #{lastProcessedVersion}
     </insert>
 
-    <select id="findNeedsExtension" resultMap="ExpanderTrackerResultMap">
+    <update id="updateCoveredUntil">
+        UPDATE expander_tracker
+        SET
+            covered_until_date  = #{endDate},
+            updated_at = NOW()
+        WHERE promotion_id = #{promotionId}
+    </update>
+
+    <select id="findBatchNeedingExtension" resultMap="ExpanderTrackerResultMap">
         SELECT * FROM expander_tracker
         WHERE status = 'ACTIVE'
-          AND (covered_until_date IS NULL OR covered_until_date &lt; #{targetHorizonDate})
-          AND (covered_until_date IS NULL OR covered_until_date &lt; valid_end_date)
-            LIMIT #{limit}
+            AND (covered_until_date is NULL or covered_until_date &lt; #{targetHorizontal})
+            AND (covered_until_date is NULL or covered_until_date &lt; valid_end_date)
+        ORDER BY covered_until_date ASC NULLS FIRST
+        LIMIT #{rollingBatchSize}
+        FOR UPDATE SKIP LOCKED
     </select>
 
 </mapper>

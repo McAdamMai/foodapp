@@ -75,6 +75,7 @@ public class SlicingEngine {
                 Instant sliceEnd = zdtEnd.toInstant();
 
                 if(sliceEnd.isBefore(clipStart) || sliceStart.isAfter(clipEnd)) {continue;}
+                // what if the time sit b/w rangeEnd and clipEnd?
                 if(sliceStart.isBefore(clipStart)) {sliceStart = clipStart;}
                 if(sliceEnd.isAfter(clipEnd)) {sliceEnd = clipEnd;}
 

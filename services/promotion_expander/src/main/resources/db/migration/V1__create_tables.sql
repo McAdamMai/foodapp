@@ -55,26 +55,13 @@ CREATE TABLE time_slice (
 
     -- CONSTRAINT: Ensure we don't overlap slices for the same Zone + Time
     -- Note: We include promotion_id to ensure scope.
-                            UNIQUE (promotion_id, timezone, start_time, slice_date)
+                            CONSTRAINT uk_slice_dedupe UNIQUE (promotion_id, slice_date, timezone, start_time)
 ) PARTITION BY RANGE (slice_date);
 
--- ========================================================
--- 3. Indices
--- ========================================================
--- Indices on the parent table automatically propagate to partitions.
-
--- Critical for: "Find all slices for Promotion X" (e.g. for Full Rebuild)
-CREATE INDEX idx_time_slice_promo_date
-    ON time_slice (promotion_id, slice_date);
-
--- Critical for: "User Query: Show me deals for Today in NY"
-CREATE INDEX idx_time_slice_date_zone
-    ON time_slice (slice_date, timezone);
-
 -- Index for the Nightly Roller Job
--- "Find me active promotions that need extension"
+-- findBatchNeedingExtension can find the 'Active' and expired in covered_until_date real quick
 CREATE INDEX idx_tracker_rolling_window
-    ON expansion_tracker (status, valid_end_date, covered_until_date);
+    ON expander_tracker (status, covered_until_date);
 
 -- ========================================================
 -- 4. Partitions (Buckets)
