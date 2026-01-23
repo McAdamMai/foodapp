@@ -71,15 +71,3 @@ CREATE INDEX idx_tracker_rolling_window
 
 -- Default partition catches any dates we forgot to create buckets for (Safety Net)
 CREATE TABLE time_slice_default PARTITION OF time_slice DEFAULT;
-
--- Bucket 1: January 2026
-CREATE TABLE time_slice_2026_01 PARTITION OF time_slice
-    FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
-
--- Bucket 2: February 2026
-CREATE TABLE time_slice_2026_02 PARTITION OF time_slice
-    FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
-
--- Bucket 3: March 2026
-CREATE TABLE time_slice_2026_03 PARTITION OF time_slice
-    FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
