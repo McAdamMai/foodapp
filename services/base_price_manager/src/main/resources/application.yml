@@ -1,0 +1,36 @@
+server:
+  port: 8903
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: base_price_manager
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/promotion_db
+    username: admin
+    password: "promo123!"
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: base_price_manager
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: false
+    default-schema: base_price_manager
+    schemas: base_price_manager
+
+logging:
+  level:
+    root: INFO
+    com.foodapp.base_price_manager: DEBUG

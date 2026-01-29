@@ -16,6 +16,8 @@
 		<module>services/promotion_expander</module>
 		<module>services/snapshot_writer</module>
 		<module>services/promotion_service</module>
+		<module>services/base_price_manager</module>
+
 	</modules>
 
 	<properties>
